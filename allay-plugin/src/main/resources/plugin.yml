@@ -1,0 +1,4 @@
+name: Allay
+version: 1
+api-version: 1.19
+main: allay.plugin.server.bukkit.AllayBukkit

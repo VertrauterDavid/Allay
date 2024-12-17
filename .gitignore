@@ -2,9 +2,10 @@
 
 *.iml
 
-api/target/
-discord/target/
-master/target/
+allay-api/target/
+allay-master/target/
+allay-node/target/
+allay-plugin/target/
 
 out/
 run/
