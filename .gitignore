@@ -1,0 +1,10 @@
+.idea/
+
+*.iml
+
+api/target/
+discord/target/
+master/target/
+
+out/
+run/
