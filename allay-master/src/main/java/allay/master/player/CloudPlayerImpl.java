@@ -16,53 +16,59 @@
 
 package allay.master.player;
 
+import allay.api.network.packet.packets.player.PlayerConnectPacket;
+import allay.api.network.packet.packets.player.PlayerMessagePacket;
+import allay.api.network.packet.packets.player.PlayerTitlePacket;
 import allay.api.player.CloudPlayer;
 import allay.api.service.CloudService;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@RequiredArgsConstructor
+@Accessors(fluent = true)
+@Getter
+@Setter
 public class CloudPlayerImpl implements CloudPlayer {
 
-    @Override
-    public String name() {
-        return "";
-    }
+    private final String name;
+    private final UUID uniqueId;
 
-    @Override
-    public UUID uniqueId() {
-        return null;
-    }
+    private String server;
+    private String proxy;
 
     @Override
     public CompletableFuture<CloudService> currentServer() {
-        return null;
+        return null; // todo: return instance of CloudService - CompletableFuture#completedFuture()
     }
 
     @Override
     public CompletableFuture<CloudService> currentProxy() {
-        return null;
+        return null; // todo: return instance of CloudService - CompletableFuture#completedFuture()
     }
 
     @Override
     public void sendMessage(String message) {
+        currentProxy().thenAccept(service -> service.sendPacket(new PlayerMessagePacket(uniqueId, message, PlayerMessagePacket.Type.MESSAGE)));
     }
 
     @Override
-    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+    public void sendTitle(String title, String subTitle, int fadeIn, int stay, int fadeOut) {
+        currentProxy().thenAccept(service -> service.sendPacket(new PlayerTitlePacket(uniqueId, title, subTitle, fadeIn, stay, fadeOut)));
     }
 
     @Override
     public void sendActionbar(String message) {
+        currentProxy().thenAccept(service -> service.sendPacket(new PlayerMessagePacket(uniqueId, message, PlayerMessagePacket.Type.ACTIONBAR)));
     }
 
     @Override
-    public void connect(String service) {
-    }
-
-    @Override
-    public CompletableFuture<Void> reload() {
-        return null;
+    public void connect(String serviceName) {
+        currentProxy().thenAccept(service -> service.sendPacket(new PlayerConnectPacket(uniqueId, serviceName)));
     }
 
 }

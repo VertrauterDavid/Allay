@@ -18,5 +18,13 @@ package allay.plugin.proxy;
 
 import allay.plugin.ServiceInstance;
 
+import java.util.UUID;
+
 public interface ProxyInstance extends ServiceInstance {
+
+    void message(UUID uuid, String message);
+    void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut);
+    void actionbar(UUID uuid, String message);
+    void connect(UUID uuid, String serviceName);
+
 }

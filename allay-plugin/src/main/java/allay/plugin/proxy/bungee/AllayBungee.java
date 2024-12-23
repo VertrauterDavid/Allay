@@ -17,7 +17,12 @@
 package allay.plugin.proxy.bungee;
 
 import allay.plugin.proxy.ProxyInstance;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
+
+import java.util.UUID;
 
 public class AllayBungee extends Plugin implements ProxyInstance {
 
@@ -29,6 +34,30 @@ public class AllayBungee extends Plugin implements ProxyInstance {
     @Override
     public void onDisable() {
         // plugin unload
+    }
+
+    @Override
+    public void message(UUID uuid, String message) {
+        player(uuid).sendMessage(new TextComponent(message));
+    }
+
+    @Override
+    public void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut) {
+        player(uuid).sendTitle(getProxy().createTitle().title(new TextComponent(title)).subTitle(new TextComponent(subTitle)).stay(stay).fadeIn(fadeIn).fadeOut(fadeOut));
+    }
+
+    @Override
+    public void actionbar(UUID uuid, String message) {
+        player(uuid).sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+    }
+
+    @Override
+    public void connect(UUID uuid, String serviceName) {
+        player(uuid).connect(getProxy().getServerInfo(serviceName));
+    }
+
+    public ProxiedPlayer player(UUID uuid) {
+        return getProxy().getPlayer(uuid);
     }
 
 }

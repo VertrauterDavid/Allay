@@ -1,13 +1,12 @@
 package allay.api.player;
 
 import allay.api.interfaces.Named;
-import allay.api.interfaces.Reloadable;
 import allay.api.service.CloudService;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface CloudPlayer extends Named, Reloadable {
+public interface CloudPlayer extends Named {
 
     UUID uniqueId();
 
@@ -15,9 +14,9 @@ public interface CloudPlayer extends Named, Reloadable {
     CompletableFuture<CloudService> currentProxy();
 
     void sendMessage(String message);
-    void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut);
+    void sendTitle(String title, String subTitle, int fadeIn, int stay, int fadeOut);
     void sendActionbar(String message);
-    void connect(String service);
+    void connect(String serviceName);
 
     default void sendTitle(String title, String subtitle) {
         // default minecraft values
