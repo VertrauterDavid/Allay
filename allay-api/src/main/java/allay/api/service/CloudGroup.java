@@ -2,8 +2,8 @@ package allay.api.service;
 
 import allay.api.interfaces.Named;
 import allay.api.interfaces.Reloadable;
-import allay.api.node.CloudNode;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface CloudGroup extends Named, Reloadable {
@@ -16,10 +16,7 @@ public interface CloudGroup extends Named, Reloadable {
     String version();
     String javaVersion();
 
-    record Node(CloudNode node, long instances) {}
-    List<Node> nodes();
-
-    record Template(String name, boolean copyToStatic, int order) {}
-    List<Template> templates();
+    HashMap<String, Long> nodes();
+    List<String> templates();
 
 }

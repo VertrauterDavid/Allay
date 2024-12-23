@@ -16,77 +16,64 @@
 
 package allay.master.service;
 
+import allay.api.network.channel.NetworkChannel;
 import allay.api.network.packet.Packet;
 import allay.api.player.CloudPlayer;
 import allay.api.service.CloudGroup;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@RequiredArgsConstructor
+@Accessors(fluent = true)
+@Getter
+@Setter
 public class CloudServiceImpl implements CloudService {
 
-    @Override
-    public CloudGroup group() {
-        return null;
-    }
+    private final CloudGroup group;
+    private final CloudServiceState state;
 
-    @Override
-    public CloudServiceState state() {
-        return null;
-    }
+    private final UUID systemId;
+    private final int orderId;
 
-    @Override
-    public UUID systemId() {
-        return null;
-    }
+    private final String hostname;
+    private final String ip;
+    private final int port;
 
-    @Override
-    public int orderId() {
-        return 0;
-    }
-
-    @Override
-    public String hostname() {
-        return "";
-    }
-
-    @Override
-    public String ip() {
-        return "";
-    }
-
-    @Override
-    public int port() {
-        return 0;
-    }
+    private NetworkChannel channel = null;
 
     @Override
     public void shutdown() {
+        // todo: send action packet to shutdown
     }
 
     @Override
     public void execute(String command) {
+        // todo: send action packet with command
     }
 
     @Override
     public CompletableFuture<Integer> onlinePlayerCount() {
+        // todo: send request packet and wait for response
         return null;
     }
 
     @Override
     public CompletableFuture<CloudPlayer> onlinePlayers() {
+        // todo: send request packet and wait for response
         return null;
     }
 
     @Override
     public void sendPacket(Packet packet) {
-    }
-
-    @Override
-    public CompletableFuture<Void> reload() {
-        return null;
+        if (channel == null) throw new IllegalStateException("Channel is not initialized yet - wait for the connection to be established");
+        channel.send(packet);
     }
 
 }

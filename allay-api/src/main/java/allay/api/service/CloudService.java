@@ -8,7 +8,7 @@ import allay.api.player.CloudPlayer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface CloudService extends Named, ChannelAppender, Reloadable {
+public interface CloudService extends Named, ChannelAppender {
 
     CloudGroup group();
     CloudServiceState state();
