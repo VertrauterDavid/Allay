@@ -6,20 +6,19 @@
 
     <groupId>vertrauterdavid</groupId>
     <artifactId>allay-master</artifactId>
-    <version>${allay.version}</version>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <allay.version>0.0.1</allay.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>vertrauterdavid</groupId>
             <artifactId>allay-api</artifactId>
-            <version>${allay.version}</version>
+            <version>1.0</version>
             <scope>compile</scope>
         </dependency>
 

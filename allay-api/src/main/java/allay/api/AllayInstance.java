@@ -16,5 +16,71 @@
 
 package allay.api;
 
+import allay.api.console.ConsoleManager;
+import allay.api.console.command.CommandManager;
+import allay.api.logger.Logger;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
+@Accessors(fluent = true)
+@Getter
 public abstract class AllayInstance {
+
+    private final Logger logger;
+    private final ConsoleManager consoleManager;
+    private final CommandManager commandManager;
+
+    private boolean shuttingDown;
+    private final long startTime;
+
+    public AllayInstance() {
+        startTime = System.currentTimeMillis();
+
+        logger = new Logger(this);
+        logger.info("");
+        logger.info("§9         _   _ _            §7___ _             _ ");
+        logger.info("§9        /_\\ | | |__ _ _  _ §7/ __| |___ _  _ __| |");
+        logger.info("§9       / _ \\| | / _` | || |§7 (__| / _ \\ || / _` |");
+        logger.info("§9      /_/ \\_\\_|_\\__,_|\\_, |§7\\___|_\\___/\\_,_\\__,_|");
+        logger.info("§9                      |__/");
+        logger.info("");
+        logger.info("   §7> §9allay-cloud §7provided by §9github.com/VertrauterDavid");
+        logger.info("   §7> the simplest all in one cloud system");
+        logger.info("");
+
+        consoleManager = new ConsoleManager(this);
+        commandManager = new CommandManager();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+
+        logger.debug("");
+        logger.debug("Debug mode is enabled!");
+        logger.debug("");
+
+        onStartup();
+        consoleManager.init();
+    }
+
+    private void shutdown() {
+        shuttingDown = true;
+
+        logger.info("");
+        logger.info("Shutting down...");
+        logger.info("");
+
+        sleep(1000);
+        onShutdown();
+
+        consoleManager.stop();
+    }
+
+    public abstract void onStartup();
+    public abstract void onShutdown();
+
+    public void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) { }
+    }
+
 }

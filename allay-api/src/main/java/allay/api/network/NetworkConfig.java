@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.network;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
+@Setter
 @Getter
-public class AllayNode extends AllayInstance {
+public class NetworkConfig {
 
-    private NetworkManager networkManager;
+    public static final String DEFAULT_HOST = "0.0.0.0";
+    public static final int DEFAULT_PORT = 8040;
 
-    @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
-    }
-
-    @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
-    }
+    private String host = DEFAULT_HOST;
+    private int port = DEFAULT_PORT;
 
 }

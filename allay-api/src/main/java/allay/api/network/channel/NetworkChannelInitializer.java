@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.network.channel;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
-import lombok.Getter;
-import lombok.experimental.Accessors;
+import allay.api.network.NetworkHandlerBase;
+import allay.api.network.codec.PacketDecoder;
+import allay.api.network.codec.PacketEncoder;
+import io.netty5.channel.Channel;
+import io.netty5.channel.ChannelInitializer;
+import lombok.RequiredArgsConstructor;
 
-@Accessors(fluent = true)
-@Getter
-public class AllayNode extends AllayInstance {
+@RequiredArgsConstructor
+public class NetworkChannelInitializer extends ChannelInitializer<Channel> {
 
-    private NetworkManager networkManager;
-
-    @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
-    }
+    private final NetworkHandlerBase networkHandler;
 
     @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    protected void initChannel(Channel channel) {
+        channel.pipeline()
+                .addLast(new PacketDecoder())
+                .addLast(new PacketEncoder())
+                .addLast(networkHandler);
     }
 
 }

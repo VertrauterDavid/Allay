@@ -14,31 +14,34 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.network.packet.packets;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
+import allay.api.network.packet.Packet;
+import allay.api.network.packet.PacketBuffer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class AllayNode extends AllayInstance {
+public class ChannelAuthPacket extends Packet {
 
-    private NetworkManager networkManager;
+    private String id;
+    private String authToken;
 
     @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
+    public void read(PacketBuffer buffer) {
+        this.id = buffer.readString();
+        this.authToken = buffer.readString();
     }
 
     @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    public void write(PacketBuffer buffer) {
+        buffer.writeString(this.id);
+        buffer.writeString(this.authToken);
     }
 
 }

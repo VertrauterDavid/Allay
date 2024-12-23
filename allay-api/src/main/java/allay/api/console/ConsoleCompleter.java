@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.console;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
-import lombok.Getter;
-import lombok.experimental.Accessors;
+import org.jline.reader.Candidate;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.ParsedLine;
 
-@Accessors(fluent = true)
-@Getter
-public class AllayNode extends AllayInstance {
+import java.util.List;
 
-    private NetworkManager networkManager;
+public class ConsoleCompleter implements Completer {
 
     @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
-    }
-
-    @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    public void complete(LineReader lineReader, ParsedLine parsedLine, List<Candidate> list) {
+        // todo
     }
 
 }

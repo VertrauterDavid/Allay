@@ -14,31 +14,24 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.logger;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
+@RequiredArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class AllayNode extends AllayInstance {
+public enum LogType {
 
-    private NetworkManager networkManager;
+    NONE("", null),
+    INFO("INFO", "§9"),
+    WARNING("WARN", "§e"),
+    ERROR("ERROR", "§c"),
+    DEBUG("DEBUG", "§a");
 
-    @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
-    }
-
-    @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
-    }
+    private final String display;
+    private final String color;
 
 }

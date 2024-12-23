@@ -14,31 +14,21 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.node.command;
 
-import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
-import lombok.Getter;
-import lombok.experimental.Accessors;
+import allay.api.console.command.Command;
+import allay.node.AllayNode;
 
-@Accessors(fluent = true)
-@Getter
-public class AllayNode extends AllayInstance {
+@SuppressWarnings("unused")
+public class ShutdownCommand extends Command<AllayNode> {
 
-    private NetworkManager networkManager;
-
-    @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
+    public ShutdownCommand(AllayNode allayNode) {
+        super(allayNode, "shutdown");
     }
 
     @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    public void execute(String[] args) {
+        System.exit(0);
     }
 
 }

@@ -14,31 +14,36 @@
  * limitations under the License.
  */
 
-package allay.node;
+package allay.api.console.command;
 
 import allay.api.AllayInstance;
-import allay.node.network.NetworkManager;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("unused")
+@RequiredArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class AllayNode extends AllayInstance {
+public abstract class Command<I extends AllayInstance> {
 
-    private NetworkManager networkManager;
+    protected final I allayInstance;
+    protected final String name;
+    protected final ArrayList<String> aliases = new ArrayList<>();
+    protected String description = "";
+    protected int weight = 0;
 
-    @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
-        networkManager.bootSync();
+    public abstract void execute(String[] args);
 
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
-        commandManager().sort();
+    public List<String> complete(String[] args) {
+        return new ArrayList<>();
     }
 
-    @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    public boolean hasAlias(String alias) {
+        return aliases.stream().anyMatch(s -> s.equalsIgnoreCase(alias));
     }
 
 }

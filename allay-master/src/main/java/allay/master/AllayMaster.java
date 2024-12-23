@@ -17,7 +17,28 @@
 package allay.master;
 
 import allay.api.AllayInstance;
+import allay.master.network.NetworkManager;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
+@Accessors(fluent = true)
+@Getter
 public class AllayMaster extends AllayInstance {
+
+    private NetworkManager networkManager;
+
+    @Override
+    public void onStartup() {
+        networkManager = new NetworkManager(this, "cool-token");
+        networkManager.bootSync();
+
+        commandManager().register(getClass().getPackage().getName() + ".command", AllayMaster.class, this);
+        commandManager().sort();
+    }
+
+    @Override
+    public void onShutdown() {
+        networkManager.shutdownSync();
+    }
 
 }
