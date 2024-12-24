@@ -18,6 +18,7 @@ package allay.node;
 
 import allay.api.AllayInstance;
 import allay.node.network.NetworkManager;
+import allay.node.service.ServiceManager;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -26,11 +27,15 @@ import lombok.experimental.Accessors;
 public class AllayNode extends AllayInstance {
 
     private NetworkManager networkManager;
+    private ServiceManager serviceManager;
 
     @Override
     public void onStartup() {
         networkManager = new NetworkManager(this, "Node-001", "cool-token");
         networkManager.bootSync();
+
+        serviceManager = new ServiceManager(this);
+        serviceManager.load();
 
         commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
         commandManager().sort();
@@ -39,6 +44,7 @@ public class AllayNode extends AllayInstance {
     @Override
     public void onShutdown() {
         networkManager.shutdownSync();
+        serviceManager.shutdown();
     }
 
 }

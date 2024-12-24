@@ -21,7 +21,7 @@ import allay.api.network.NetworkState;
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.Packet;
-import allay.api.network.packet.packets.ChannelAuthPacket;
+import allay.api.network.packet.packets.sys.ChannelAuthPacket;
 import allay.node.AllayNode;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;

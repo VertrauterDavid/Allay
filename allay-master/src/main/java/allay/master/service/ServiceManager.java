@@ -17,17 +17,21 @@
 package allay.master.service;
 
 import allay.api.util.JsonFile;
+import allay.master.AllayMaster;
+import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
+@RequiredArgsConstructor
 public class ServiceManager {
 
+    private final AllayMaster allayMaster;
     private final ArrayList<CloudGroupImpl> groups = new ArrayList<>();
 
-    public ServiceManager() {
+    public void load() {
         File groups = new File("groups");
         if (!(groups.exists())) groups.mkdirs();
 
@@ -46,6 +50,7 @@ public class ServiceManager {
         if (!(name.equals(file.getString("name")))) throw new IllegalArgumentException("Group name in file does not match with the file name");
 
         CloudGroupImpl group = new CloudGroupImpl(
+                allayMaster,
                 file.getString("name"),
                 file.getLong("memory"),
                 file.getLong("minInstances"),
@@ -58,6 +63,10 @@ public class ServiceManager {
         );
 
         groups.add(group);
+    }
+
+    public void save() {
+        groups.forEach(this::save);
     }
 
     public void save(CloudGroupImpl group) {

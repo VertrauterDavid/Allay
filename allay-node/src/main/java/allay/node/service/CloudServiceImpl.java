@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package allay.master.service;
+package allay.node.service;
 
-import allay.api.network.channel.NetworkChannel;
 import allay.api.network.packet.Packet;
+import allay.api.network.packet.packets.RedirectToServicePacket;
 import allay.api.player.CloudPlayer;
 import allay.api.service.CloudGroup;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
-import allay.master.AllayMaster;
+import allay.node.AllayNode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 @Setter
 public class CloudServiceImpl implements CloudService {
 
-    private final AllayMaster allayMaster;
+    private final AllayNode allayNode;
 
     private final CloudGroup group;
     private final CloudServiceState state;
@@ -49,16 +49,15 @@ public class CloudServiceImpl implements CloudService {
     private final String ip;
     private final int port;
 
-    private NetworkChannel channel = null;
+    public void start() {
+    }
 
     @Override
     public void shutdown(boolean force) {
-        // todo: send packet to node and handle there
     }
 
     @Override
     public void execute(String command) {
-        // todo: send packet to node and handle there
     }
 
     @Override
@@ -75,8 +74,7 @@ public class CloudServiceImpl implements CloudService {
 
     @Override
     public void sendPacket(Packet packet) {
-        if (channel == null) throw new IllegalStateException("Channel is not initialized yet - wait for the connection to be established");
-        channel.send(packet);
+        allayNode.networkManager().channel().send(new RedirectToServicePacket(systemId, packet));
     }
 
 }

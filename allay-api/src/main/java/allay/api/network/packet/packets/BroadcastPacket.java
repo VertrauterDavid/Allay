@@ -27,21 +27,18 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class ChannelAuthPacket extends Packet {
+public class BroadcastPacket extends Packet {
 
-    private String id;
-    private String authToken;
+    private Packet targetPacket;
 
     @Override
     public void read(PacketBuffer buffer) {
-        this.id = buffer.readString();
-        this.authToken = buffer.readString();
+        targetPacket.read(buffer);
     }
 
     @Override
     public void write(PacketBuffer buffer) {
-        buffer.writeString(this.id);
-        buffer.writeString(this.authToken);
+        targetPacket.write(buffer);
     }
 
 }

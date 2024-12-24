@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package allay.master.service;
+package allay.node.service;
 
 import allay.api.service.CloudGroup;
-import allay.master.AllayMaster;
+import allay.node.AllayNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import java.util.List;
 @Setter
 public class CloudGroupImpl implements CloudGroup {
 
-    private final AllayMaster allayMaster;
+    private final AllayNode allayNode;
 
     private final String name;
     private long memory;
@@ -45,5 +46,7 @@ public class CloudGroupImpl implements CloudGroup {
 
     private HashMap<String, Long> nodes;
     private List<String> templates;
+
+    private final ArrayList<CloudServiceImpl> services = new ArrayList<>();
 
 }

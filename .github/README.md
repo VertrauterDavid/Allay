@@ -7,4 +7,7 @@
 
 ---
 
----
+<p style="color: lightcoral;">
+This project is purely for fun; I do not provide technical support or any form of assistance.<br>
+Additionally, it is far from complete and still in the early stages of development.
+</p>

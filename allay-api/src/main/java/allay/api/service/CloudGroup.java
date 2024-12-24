@@ -1,7 +1,6 @@
 package allay.api.service;
 
 import allay.api.interfaces.Named;
-import allay.api.interfaces.Reloadable;
 
 import java.util.HashMap;
 import java.util.List;

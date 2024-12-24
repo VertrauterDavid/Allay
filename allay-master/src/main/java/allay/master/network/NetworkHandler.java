@@ -20,7 +20,10 @@ import allay.api.network.NetworkHandlerBase;
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.Packet;
-import allay.api.network.packet.packets.ChannelAuthPacket;
+import allay.api.network.packet.packets.BroadcastPacket;
+import allay.api.network.packet.packets.RedirectToNodePacket;
+import allay.api.network.packet.packets.RedirectToServicePacket;
+import allay.api.network.packet.packets.sys.ChannelAuthPacket;
 import allay.master.AllayMaster;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +71,21 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.send(packet);
                 allayMaster.logger().info("[§aVERIFIED§r] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + networkChannel.hostname());
             }
+            return;
+        }
+
+        if (packet instanceof BroadcastPacket broadcastPacket) {
+            manager.channels().stream().filter(channel -> channel != networkChannel).forEach(channel -> channel.send(broadcastPacket.targetPacket()));
+            return;
+        }
+
+        if (packet instanceof RedirectToNodePacket redirectPacket) {
+            manager.channel(redirectPacket.receiver()).send(redirectPacket.targetPacket());
+            return;
+        }
+
+        if (packet instanceof RedirectToServicePacket redirectPacket) {
+            manager.channel("service-" + redirectPacket.receiver()).send(redirectPacket.targetPacket()); // todo: channel name?
             return;
         }
 

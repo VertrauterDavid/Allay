@@ -2,7 +2,6 @@ package allay.api.service;
 
 import allay.api.interfaces.ChannelAppender;
 import allay.api.interfaces.Named;
-import allay.api.interfaces.Reloadable;
 import allay.api.player.CloudPlayer;
 
 import java.util.UUID;
@@ -20,7 +19,7 @@ public interface CloudService extends Named, ChannelAppender {
     String ip();
     int port();
 
-    void shutdown();
+    void shutdown(boolean force);
     void execute(String command);
 
     CompletableFuture<Integer> onlinePlayerCount();
