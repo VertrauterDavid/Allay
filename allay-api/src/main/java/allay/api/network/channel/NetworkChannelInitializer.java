@@ -16,6 +16,7 @@
 
 package allay.api.network.channel;
 
+import allay.api.logger.Logger;
 import allay.api.network.NetworkHandlerBase;
 import allay.api.network.codec.PacketDecoder;
 import allay.api.network.codec.PacketEncoder;
@@ -26,13 +27,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NetworkChannelInitializer extends ChannelInitializer<Channel> {
 
+    private final Logger logger;
     private final NetworkHandlerBase networkHandler;
 
     @Override
     protected void initChannel(Channel channel) {
         channel.pipeline()
-                .addLast(new PacketDecoder())
-                .addLast(new PacketEncoder())
+                .addLast(new PacketDecoder(logger))
+                .addLast(new PacketEncoder(logger))
                 .addLast(networkHandler);
     }
 

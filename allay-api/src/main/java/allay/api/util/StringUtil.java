@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package allay.api.network.packet;
+package allay.api.util;
 
-import allay.api.interfaces.Sendable;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.experimental.UtilityClass;
 
-@Accessors(fluent = true, chain = true)
-public abstract class Packet implements Sendable {
+import java.security.SecureRandom;
+import java.util.stream.Collectors;
 
-    public static final String DEFAULT_PACKET_KEY = "0";
+@UtilityClass
+public class StringUtil {
 
-    @Setter
-    @Getter
-    private String packetKey = DEFAULT_PACKET_KEY; // used to identify the packet
+    public static String generateRandom(int length) {
+        String characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        SecureRandom random = new SecureRandom();
+
+        return random.ints(length, 0, characters.length())
+                .mapToObj(i -> String.valueOf(characters.charAt(i)))
+                .collect(Collectors.joining());
+    }
 
 }

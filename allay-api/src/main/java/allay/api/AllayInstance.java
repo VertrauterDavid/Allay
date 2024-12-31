@@ -20,6 +20,8 @@ import allay.api.console.ConsoleManager;
 import allay.api.console.command.CommandManager;
 import allay.api.logger.Logger;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 
 @Accessors(fluent = true)
@@ -31,11 +33,11 @@ public abstract class AllayInstance {
     private final CommandManager commandManager;
 
     private boolean shuttingDown;
-    private final long startTime;
+
+    @Setter
+    private boolean skipShutdownHook = false;
 
     public AllayInstance() {
-        startTime = System.currentTimeMillis();
-
         logger = new Logger(this);
         logger.info("");
         logger.info("§9         _   _ _            §7___ _             _ ");
@@ -63,12 +65,13 @@ public abstract class AllayInstance {
 
     private void shutdown() {
         shuttingDown = true;
+        if (skipShutdownHook) return;
 
         logger.info("");
         logger.info("Shutting down...");
         logger.info("");
 
-        sleep(1000);
+        sleep(500);
         onShutdown();
 
         consoleManager.stop();
@@ -77,10 +80,9 @@ public abstract class AllayInstance {
     public abstract void onStartup();
     public abstract void onShutdown();
 
+    @SneakyThrows
     public void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ignored) { }
+        Thread.sleep(millis);
     }
 
 }

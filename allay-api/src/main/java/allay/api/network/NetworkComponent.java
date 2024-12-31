@@ -31,8 +31,6 @@ public abstract class NetworkComponent {
 
     @Getter
     private NetworkState state = NetworkState.INITIALIZING;
-
-    protected NetworkConfig config = new NetworkConfig();
     protected MultithreadEventLoopGroup bossGroup;
 
     public abstract CompletableFuture<Void> boot();

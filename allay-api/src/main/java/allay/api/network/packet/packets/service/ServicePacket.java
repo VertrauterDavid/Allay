@@ -14,25 +14,45 @@
  * limitations under the License.
  */
 
-package allay.api.network;
+package allay.api.network.packet.packets.service;
 
+import allay.api.network.packet.Packet;
+import allay.api.network.packet.PacketBuffer;
+import allay.api.service.CloudService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(fluent = true)
-@Setter
 @Getter
-public class NetworkConfig {
+public class ServicePacket extends Packet {
 
-    public static final String DEFAULT_HOST = "0.0.0.0";
-    public static final int DEFAULT_PORT = 8040;
+    private CloudService service;
+    private Action action;
 
-    private String host = DEFAULT_HOST;
-    private int port = DEFAULT_PORT;
+    @Override
+    public void read(PacketBuffer buffer) {
+        service = new CloudService();
+        service.read(buffer);
+        action = buffer.readEnum(Action.class);
+    }
+
+    @Override
+    public void write(PacketBuffer buffer) {
+        service.write(buffer);
+        buffer.writeEnum(action);
+    }
+
+    public enum Action {
+        START,
+        STOP,
+        KILL,
+        UPDATE, // todo - needed???
+        REGISTER,
+        UNREGISTER
+    }
 
 }

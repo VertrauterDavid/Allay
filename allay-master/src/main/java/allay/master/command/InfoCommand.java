@@ -19,6 +19,8 @@ package allay.master.command;
 import allay.api.console.command.Command;
 import allay.master.AllayMaster;
 
+import java.util.ArrayList;
+
 @SuppressWarnings("unused")
 public class InfoCommand extends Command<AllayMaster> {
 
@@ -28,14 +30,19 @@ public class InfoCommand extends Command<AllayMaster> {
 
     @Override
     public void execute(String[] args) {
-        if (allayInstance.networkManager().channels().isEmpty()) {
-            allayInstance.logger().info("No channels connected");
-            return;
-        }
-
         allayInstance.logger().info("");
         allayInstance.logger().info("| Channels (" + allayInstance.networkManager().channels().size() + "):");
-        allayInstance.networkManager().channels().forEach(channel -> allayInstance.logger().info("| - " + channel.id() + " - " + channel.state().name() + " - " + channel.hostname()));
+        allayInstance.networkManager().channels().forEach(channel -> allayInstance.logger().info("| - " + channel.id() + " - " + channel.hostname() + " - " + channel.state().name()));
+        allayInstance.logger().info("");
+        allayInstance.logger().info("| Services (" + allayInstance.serviceManager().services().values().stream().mapToInt(ArrayList::size).sum() + "):");
+        allayInstance.serviceManager().services().forEach((group, services) -> {
+            if (services.isEmpty()) return;
+            allayInstance.logger().info("| - " + group.name() + " (" + services.size() + "):");
+            services.forEach(service -> allayInstance.logger().info("|   - " + service.name() + " - " + service.hostname() + " - " + service.state().name()));
+        });
+        allayInstance.logger().info("");
+        allayInstance.logger().info("| Queue (" + allayInstance.serviceManager().queue().queue().size() + "):");
+        allayInstance.serviceManager().queue().queue().forEach(service -> allayInstance.logger().info("| - " + service.name() + " - " + service.node()));
         allayInstance.logger().info("");
     }
 

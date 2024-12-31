@@ -22,7 +22,8 @@ import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelInitializer;
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketListener;
-import allay.api.network.util.NettyUtil;
+import allay.api.network.util.NetworkUtil;
+import allay.api.util.JsonFile;
 import allay.node.AllayNode;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
@@ -32,8 +33,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Accessors(fluent = true)
 @RequiredArgsConstructor
@@ -43,45 +47,70 @@ public class NetworkManager extends NetworkComponent {
     private final AllayNode allayNode;
     private final String id;
     private final String authToken;
+    private final String host;
+    private final int port;
 
     @Setter
     private NetworkChannel channel;
     private final ArrayList<PacketListener> listeners = new ArrayList<>();
 
+    public NetworkManager(AllayNode allayNode) {
+        this.allayNode = allayNode;
+
+        JsonFile config = new JsonFile(new File("storage/config/netty.json"))
+                .setStringDefault("id", "Node-" + UUID.randomUUID().toString().split("-")[0])
+                .setStringDefault("authToken", "put-master-auth-token-here")
+                .setStringDefault("host", "0.0.0.0")
+                .setLongDefault("port", 8040);
+
+        this.id = config.getString("id");
+        this.authToken = config.getString("authToken");
+        this.host = config.getString("host");
+        this.port = (int) config.getLong("port");
+    }
+
     @Override
     public CompletableFuture<Void> boot() {
         state(NetworkState.CONNECTING);
 
+        // just caching the ip here - so we don't have to wait for the response later
+        NetworkUtil.getCurrentIp();
+
         CompletableFuture<Void> future = new CompletableFuture<>();
         Bootstrap bootstrap = new Bootstrap()
-                .group(bossGroup = new MultithreadEventLoopGroup(NettyUtil.getFactory()))
-                .channelFactory(NettyUtil.getSocketChannelFactory())
-                .handler(new NetworkChannelInitializer(new NetworkHandler(allayNode, this, future)))
+                .group(bossGroup = new MultithreadEventLoopGroup(NetworkUtil.getFactory()))
+                .channelFactory(NetworkUtil.getSocketChannelFactory())
+                .handler(new NetworkChannelInitializer(allayNode.logger(), new NetworkHandler(allayNode, this, future)))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.IP_TOS, 24)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000);
+                .option(ChannelOption.IP_TOS, 24);
 
-        bootstrap.connect(config.host(), config.port()).addListener(futureChannel -> {
+        bootstrap.connect(this.host, this.port).addListener(futureChannel -> {
             if (futureChannel.isSuccess()) {
                 state(NetworkState.CONNECTION_ESTABLISHED);
             } else {
                 state(NetworkState.CONNECTION_FAILED);
-                future.complete(null);
+
+                allayNode.logger().warning(" ");
+                allayNode.logger().warning("§cFailed to connect to master");
+                allayNode.logger().warning("§cCheck the host and port in §cstorage/config/netty.json");
+                allayNode.logger().warning(" ");
+
+                allayNode.skipShutdownHook(true);
+                allayNode.sleep(2000);
+
+                System.exit(0);
             }
         });
 
         return future;
     }
 
-    public void addListener(PacketListener listener) {
-        listeners.add(listener);
-    }
-
-    public void addListener(Class<? extends Packet> clazz, PacketListener listener) {
+    public <P extends Packet> void addListener(Class<P> clazz, Consumer<P> listener) {
         listeners.add(packet -> {
             if (clazz.isInstance(packet)) {
-                listener.onPacket(packet);
+                listener.accept(clazz.cast(packet));
             }
         });
     }

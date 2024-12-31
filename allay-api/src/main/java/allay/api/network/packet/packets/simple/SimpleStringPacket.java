@@ -14,36 +14,31 @@
  * limitations under the License.
  */
 
-package allay.master;
+package allay.api.network.packet.packets.simple;
 
-import allay.api.AllayInstance;
-import allay.master.network.NetworkManager;
-import allay.master.service.ServiceManager;
+import allay.api.network.packet.Packet;
+import allay.api.network.packet.PacketBuffer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class AllayMaster extends AllayInstance {
+public class SimpleStringPacket extends Packet {
 
-    private NetworkManager networkManager;
-    private ServiceManager serviceManager;
+    private String message;
 
     @Override
-    public void onStartup() {
-        networkManager = new NetworkManager(this);
-        networkManager.bootSync();
-
-        serviceManager = new ServiceManager(this);
-        serviceManager.load();
-
-        commandManager().register(getClass().getPackage().getName() + ".command", AllayMaster.class, this);
-        commandManager().sort();
+    public void read(PacketBuffer buffer) {
+        message = buffer.readString();
     }
 
     @Override
-    public void onShutdown() {
-        networkManager.shutdownSync();
+    public void write(PacketBuffer buffer) {
+        buffer.writeString(message);
     }
 
 }

@@ -16,26 +16,34 @@
 
 package allay.api.network.codec;
 
+import allay.api.logger.Logger;
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketBuffer;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.MessageToByteEncoder;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
+@RequiredArgsConstructor
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
+    private final Logger logger;
     private static final HashMap<Packet, PacketBuffer> tempPacketEncoderList = new HashMap<>();
 
     @Override
     protected Buffer allocateBuffer(ChannelHandlerContext channelHandlerContext, @NotNull Packet packet) {
         try {
             PacketBuffer buffer = PacketBuffer.allocate();
+            buffer.writeString((packet.packetKey() == null ? Packet.DEFAULT_PACKET_KEY : packet.packetKey()));
             packet.write(buffer);
-            tempPacketEncoderList.put(packet, buffer);
+
+            if (tempPacketEncoderList.put(packet, buffer) != null) {
+                logger.warning("Replacing existing buffer for packet: " + packet.getClass().getName());
+            }
 
             // amount of chars in class name
             int bytes = Integer.BYTES +
@@ -47,7 +55,9 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
                     buffer.origin().readableBytes();
 
             return channelHandlerContext.bufferAllocator().allocate(bytes);
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            logger.exception(exception);
+        }
 
         return null;
     }
@@ -55,17 +65,33 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, Buffer out) {
         try {
-            var origin = tempPacketEncoderList.get(packet).origin();
+            var tempBuffer = tempPacketEncoderList.get(packet);
+            if (tempBuffer == null) {
+                logger.error("Buffer not found for packet: " + packet.getClass().getName());
+                return;
+            }
+
+            var origin = tempBuffer.origin();
+            if (origin.readableBytes() == 0) {
+                logger.warning("No readable bytes found for packet: " + packet.getClass().getName());
+                return;
+            }
+
             var buffer = new PacketBuffer(out);
             var readableBytes = origin.readableBytes();
 
             buffer.writeString(packet.getClass().getName());
             buffer.writeInt(readableBytes);
 
+            logger.debug("Encoding packet: " + packet.getClass().getName() + ", readable bytes: " + readableBytes);
+
             origin.copyInto(0, out, out.writerOffset(), readableBytes);
             out.skipWritableBytes(readableBytes);
-        } catch (Exception ignored) { }
-
-        tempPacketEncoderList.remove(packet);
+        } catch (Exception exception) {
+            logger.exception(exception);
+        } finally {
+            tempPacketEncoderList.remove(packet);
+        }
     }
+
 }

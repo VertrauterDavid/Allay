@@ -18,9 +18,11 @@ package allay.api.network.packet.packets;
 
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketBuffer;
+import allay.api.network.util.PacketAllocator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 
 @AllArgsConstructor
@@ -31,13 +33,18 @@ public class BroadcastPacket extends Packet {
 
     private Packet targetPacket;
 
+    @SneakyThrows
     @Override
     public void read(PacketBuffer buffer) {
-        targetPacket.read(buffer);
+        targetPacket = (Packet) PacketAllocator.allocate(Class.forName(buffer.readString()));
+        if (targetPacket != null) {
+            targetPacket.read(buffer);
+        }
     }
 
     @Override
     public void write(PacketBuffer buffer) {
+        buffer.writeString(targetPacket.getClass().getName());
         targetPacket.write(buffer);
     }
 

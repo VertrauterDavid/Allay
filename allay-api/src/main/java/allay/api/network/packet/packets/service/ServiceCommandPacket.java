@@ -14,39 +14,36 @@
  * limitations under the License.
  */
 
-package allay.node.service;
+package allay.api.network.packet.packets.service;
 
-import allay.api.service.CloudGroup;
-import allay.node.AllayNode;
+import allay.api.network.packet.Packet;
+import allay.api.network.packet.PacketBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-@Setter
-public class CloudGroupImpl implements CloudGroup {
+public class ServiceCommandPacket extends Packet {
 
-    private final AllayNode allayNode;
+    private UUID systemId;
+    private String command;
 
-    private final String name;
-    private long memory;
-    private long minInstances;
-    private long maxInstances;
-    private boolean staticGroup;
+    @Override
+    public void read(PacketBuffer buffer) {
+        systemId = buffer.readUniqueId();
+        command = buffer.readString();
+    }
 
-    private String version;
-    private String javaVersion;
-
-    private HashMap<String, Long> nodes;
-    private List<String> templates;
-
-    private final ArrayList<CloudServiceImpl> services = new ArrayList<>();
+    @Override
+    public void write(PacketBuffer buffer) {
+        buffer.writeUniqueId(systemId);
+        buffer.writeString(command);
+    }
 
 }

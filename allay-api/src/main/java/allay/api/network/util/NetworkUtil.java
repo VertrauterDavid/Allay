@@ -26,8 +26,12 @@ import io.netty5.channel.socket.nio.NioServerSocketChannel;
 import io.netty5.channel.socket.nio.NioSocketChannel;
 import lombok.experimental.UtilityClass;
 
+import java.io.*;
+import java.net.URI;
+import java.net.URL;
+
 @UtilityClass
-public class NettyUtil {
+public class NetworkUtil {
 
     public static IoHandlerFactory getFactory() {
         return Epoll.isAvailable() ? EpollHandler.newFactory() : NioHandler.newFactory();
@@ -39,6 +43,37 @@ public class NettyUtil {
 
     public static ChannelFactory<? extends Channel> getSocketChannelFactory() {
         return Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
+    }
+
+    private static String ip = null;
+    public static String getCurrentIp() {
+        if (ip != null) {
+            return ip;
+        }
+
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("storage/config/ip.txt"));
+            ip = bufferedReader.readLine();
+            bufferedReader.close();
+            if (ip != null && !ip.isEmpty()) {
+                return ip;
+            }
+        } catch (IOException ignored) { }
+
+        try {
+            URL url = URI.create("https://checkip.amazonaws.com").toURL();
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            ip = in.readLine();
+            in.close();
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("storage/config/ip.txt"));
+            bufferedWriter.write(ip);
+            bufferedWriter.close();
+
+            return ip;
+        } catch (IOException ignored) { }
+
+        return ip;
     }
 
 }

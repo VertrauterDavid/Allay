@@ -2,7 +2,7 @@ package allay.api.service;
 
 public enum CloudServiceState {
 
-    PREPARED,
+    QUEUE,
     STARTING,
     ONLINE,
     STOPPING

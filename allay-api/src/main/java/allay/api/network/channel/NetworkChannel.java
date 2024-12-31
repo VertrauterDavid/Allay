@@ -24,6 +24,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Accessors(fluent = true)
@@ -33,14 +36,37 @@ public class NetworkChannel {
     @Setter
     @Nullable private String id; // any identifier - can also be null
     private final Channel nettyChannel;
+    private final HashMap<String, CompletableFuture<Packet>> futures = new HashMap<>();
 
     @Setter
     private NetworkChannelState state = NetworkChannelState.AUTHENTICATION_PENDING;
 
     public void send(Packet packet) {
-        if (this.state == NetworkChannelState.AUTHENTICATION_PENDING) throw new IllegalStateException("Channel is not authenticated");
-        if (this.state == NetworkChannelState.CLOSED) throw new IllegalStateException("Channel is closed");
+        if (!(nettyChannel.isOpen() && nettyChannel.isActive())) {
+            throw new IllegalStateException("Channel is not open or active");
+        }
+
+        if (this.state != NetworkChannelState.AUTHENTICATION_DONE && this.state != NetworkChannelState.READY) {
+            throw new IllegalStateException("Channel authentication not done yet or channel is already closed");
+        }
+
         this.nettyChannel.writeAndFlush(packet);
+    }
+
+    public CompletableFuture<Packet> sendAndReceive(Packet packet) {
+        CompletableFuture<Packet> future = new CompletableFuture<>();
+
+        if (this.state != NetworkChannelState.AUTHENTICATION_DONE && this.state != NetworkChannelState.READY) {
+            future.completeExceptionally(new IllegalStateException("Channel authentication not done yet or channel is already closed"));
+        }
+
+        String key = UUID.randomUUID().toString();
+        packet.packetKey(key);
+
+        this.nettyChannel.writeAndFlush(packet);
+        this.futures.put(key, future);
+
+        return future;
     }
 
     public void close() {

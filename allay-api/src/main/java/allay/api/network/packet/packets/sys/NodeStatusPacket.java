@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package allay.master.service;
+package allay.api.network.packet.packets.sys;
 
-import allay.api.service.CloudGroup;
-import allay.master.AllayMaster;
+import allay.api.network.channel.NetworkChannelState;
+import allay.api.network.packet.Packet;
+import allay.api.network.packet.PacketBuffer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.HashMap;
-import java.util.List;
-
 @AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-@Setter
-public class CloudGroupImpl implements CloudGroup {
+public class NodeStatusPacket extends Packet {
 
-    private final AllayMaster allayMaster;
+    private NetworkChannelState state;
 
-    private final String name;
-    private long memory;
-    private long minInstances;
-    private long maxInstances;
-    private boolean staticGroup;
+    @Override
+    public void read(PacketBuffer buffer) {
+        state = buffer.readEnum(NetworkChannelState.class);
+    }
 
-    private String version;
-    private String javaVersion;
-
-    private HashMap<String, Long> nodes;
-    private List<String> templates;
+    @Override
+    public void write(PacketBuffer buffer) {
+        buffer.writeEnum(state);
+    }
 
 }

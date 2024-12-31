@@ -16,34 +16,59 @@
 
 package allay.api.network.codec;
 
+import allay.api.logger.Logger;
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketBuffer;
 import allay.api.network.util.PacketAllocator;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class PacketDecoder extends ByteToMessageDecoder {
+
+    private final Logger logger;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, Buffer in) {
         PacketBuffer buffer = new PacketBuffer(in);
+
+        if (in.readableBytes() < Integer.BYTES) {
+            logger.error("Insufficient data to decode packet class name length.");
+            return;
+        }
+
         String className = buffer.readString();
 
         try {
+            if (in.readableBytes() < Integer.BYTES) {
+                logger.error("Insufficient data to read the packet payload size.");
+                return;
+            }
+
             int readableBytes = buffer.readInt();
+            if (in.readableBytes() < readableBytes) {
+                logger.error("Insufficient data to read the packet payload. Expected: " + readableBytes + ", Available: " + in.readableBytes());
+                return;
+            }
 
             PacketBuffer content = new PacketBuffer(in.copy(in.readerOffset(), readableBytes, true));
             in.skipReadableBytes(readableBytes);
 
             Packet packet = (Packet) PacketAllocator.allocate(Class.forName(className));
             if (packet != null) {
+                packet.packetKey(content.readString());
                 packet.read(content);
             }
 
+            logger.debug("Decoding packet: " + className + ", readable bytes: " + readableBytes);
+
             buffer.resetBuffer();
             channelHandlerContext.fireChannelRead(packet);
-        } catch (Exception ignored) { }
+        } catch (Exception exception) {
+            logger.exception(exception);
+        }
     }
 
 }

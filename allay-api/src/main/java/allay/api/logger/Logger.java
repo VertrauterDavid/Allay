@@ -30,7 +30,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @SuppressWarnings("all")
 public class Logger {
 
-    private static final boolean DEBUG = false;
+    public static final boolean DEBUG = false;
+    public static final boolean PACKETS = false;
 
     private final AllayInstance allayInstance;
     private final SimpleDateFormat dateFormat;

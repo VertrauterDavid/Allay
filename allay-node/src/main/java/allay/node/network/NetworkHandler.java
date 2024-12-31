@@ -16,12 +16,15 @@
 
 package allay.node.network;
 
+import allay.api.logger.Logger;
 import allay.api.network.NetworkHandlerBase;
 import allay.api.network.NetworkState;
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.Packet;
+import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthPacket;
+import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.node.AllayNode;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
@@ -50,21 +53,66 @@ public class NetworkHandler extends NetworkHandlerBase {
 
     @Override
     public void onDisconnect(NetworkChannel networkChannel) {
-        manager.channel(null);
         manager.state(NetworkState.CONNECTION_CLOSED);
         networkChannel.state(NetworkChannelState.CLOSED);
+
+        // todo - reconnect if possible
+        System.exit(0);
     }
 
     @Override
     public void onPacket(NetworkChannel networkChannel, Packet packet) {
-        if (networkChannel.state() != NetworkChannelState.READY || packet instanceof ChannelAuthPacket) {
-            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING && packet instanceof ChannelAuthPacket authPacket) {
+        if (packet instanceof ChannelAuthPacket authPacket) {
+            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING) {
                 if (!(authPacket.authToken().equals(manager.authToken()))) return;
                 networkChannel.id(authPacket.id());
-                networkChannel.state(NetworkChannelState.READY);
+                networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 bootFuture.complete(null);
+                allayNode.logger().info("[§eVERIFIED§r] Successfully authenticated with §a" + networkChannel.hostname());
             }
             return;
+        }
+
+        if (packet instanceof ChannelAuthFailedPacket authPacket) {
+            allayNode.logger().warning(" ");
+            allayNode.logger().warning("§cAuthentication to master failed");
+            allayNode.logger().warning("§cReason§r: " + authPacket.reason());
+            switch (authPacket.reason()) {
+                case ChannelAuthFailedPacket.REASON_INVALID_AUTH -> {
+                    allayNode.logger().warning(" ");
+                    allayNode.logger().warning("§cCheck the auth-token in §cstorage/config/netty.json");
+                }
+                case ChannelAuthFailedPacket.REASON_INVALID_ID -> {
+                    allayNode.logger().warning(" ");
+                    allayNode.logger().warning("§cCheck the id in §cstorage/config/netty.json");
+                }
+            }
+            allayNode.logger().warning(" ");
+
+            allayNode.skipShutdownHook(true);
+            allayNode.sleep(2000);
+
+            System.exit(0);
+            return;
+        }
+
+        if (Logger.PACKETS) {
+            allayNode.logger().info("[§eRECEIVED§r] " + packet.getClass().getSimpleName());
+        }
+
+        if (packet instanceof NodeStatusPacket statusPacket) {
+            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_DONE && statusPacket.state() == NetworkChannelState.READY) {
+                networkChannel.state(statusPacket.state());
+                bootFuture.complete(null);
+            }
+        }
+
+        if (packet.packetKey() != null && !(packet.packetKey().equalsIgnoreCase(Packet.DEFAULT_PACKET_KEY))) {
+            CompletableFuture<Packet> future = allayNode.networkManager().channel().futures().getOrDefault(packet.packetKey(), null);
+            if (future != null) {
+                future.complete(packet);
+                return;
+            }
         }
 
         manager.listeners().forEach(listener -> listener.onPacket(packet));

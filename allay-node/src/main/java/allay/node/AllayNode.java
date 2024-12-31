@@ -17,10 +17,16 @@
 package allay.node;
 
 import allay.api.AllayInstance;
+import allay.api.network.channel.NetworkChannelState;
+import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.node.network.NetworkManager;
 import allay.node.service.ServiceManager;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Accessors(fluent = true)
 @Getter
@@ -31,7 +37,7 @@ public class AllayNode extends AllayInstance {
 
     @Override
     public void onStartup() {
-        networkManager = new NetworkManager(this, "Node-001", "cool-token");
+        networkManager = new NetworkManager(this);
         networkManager.bootSync();
 
         serviceManager = new ServiceManager(this);
@@ -39,12 +45,21 @@ public class AllayNode extends AllayInstance {
 
         commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
         commandManager().sort();
+
+        // send a packet to the master - we are now ready to handle services
+        networkManager.channel().send(new NodeStatusPacket(NetworkChannelState.READY));
     }
 
     @Override
     public void onShutdown() {
-        networkManager.shutdownSync();
-        serviceManager.shutdown();
+        if (serviceManager != null) {
+            serviceManager.shutdown();
+        }
+
+        // todo - implement networkManager.shutdownSync() - atm it's throwing useless TimeoutExceptions
+        try {
+            networkManager.shutdown().get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignored) { }
     }
 
 }

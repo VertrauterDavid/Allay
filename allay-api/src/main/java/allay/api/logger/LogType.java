@@ -29,7 +29,7 @@ public enum LogType {
     INFO("INFO", "§9"),
     WARNING("WARN", "§e"),
     ERROR("ERROR", "§c"),
-    DEBUG("DEBUG", "§a");
+    DEBUG("TEST", "§a"); // "TEST" because it's the same length as info and warn
 
     private final String display;
     private final String color;

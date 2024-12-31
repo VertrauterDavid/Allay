@@ -22,13 +22,9 @@ import io.netty5.buffer.DefaultBufferAllocators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.*;
 
 @AllArgsConstructor
 @Accessors(fluent = true)
@@ -74,16 +70,6 @@ public class PacketBuffer {
         return this.origin.readBoolean();
     }
 
-    public PacketBuffer writeUniqueId(UUID uniqueId) {
-        this.origin.writeLong(uniqueId.getMostSignificantBits());
-        this.origin.writeLong(uniqueId.getLeastSignificantBits());
-        return this;
-    }
-
-    public UUID readUniqueId() {
-        return new UUID(this.origin.readLong(), this.origin.readLong());
-    }
-
     public PacketBuffer writeInt(int value) {
         this.origin.writeInt(value);
         return this;
@@ -91,37 +77,6 @@ public class PacketBuffer {
 
     public int readInt() {
         return this.origin.readInt();
-    }
-
-    public PacketBuffer writeEnum(Enum<?> value) {
-        this.origin.writeInt(value.ordinal());
-        return this;
-    }
-
-    public <T extends Enum<?>> T readEnum(Class<T> clazz) {
-        return clazz.getEnumConstants()[this.origin.readInt()];
-    }
-
-
-    public <T> void writeList(@NotNull List<T> list, BiConsumer<PacketBuffer, T> consumer) {
-        this.writeInt(list.size());
-
-        list.forEach(o -> consumer.accept(this, o));
-    }
-
-    public <T> List<T> readList(List<T> list, Supplier<T> supplier) {
-        var size = this.readInt();
-
-        for (int i = 0; i < size; i++) {
-            list.add(supplier.get());
-        }
-
-        return list;
-    }
-
-    public void writeBuffer(PacketBuffer buffer) {
-        this.writeInt(buffer.origin().readableBytes());
-        this.writeBytes(buffer.origin());
     }
 
     public PacketBuffer writeLong(long value) {
@@ -160,37 +115,147 @@ public class PacketBuffer {
         return this;
     }
 
+    public PacketBuffer writeUniqueId(UUID uniqueId) {
+        this.origin.writeLong(uniqueId.getMostSignificantBits());
+        this.origin.writeLong(uniqueId.getLeastSignificantBits());
+        return this;
+    }
+
+    public UUID readUniqueId() {
+        return new UUID(this.origin.readLong(), this.origin.readLong());
+    }
+
+    public PacketBuffer writeEnum(Enum<?> value) {
+        this.origin.writeInt(value.ordinal());
+        return this;
+    }
+
+    public <T extends Enum<?>> T readEnum(Class<T> clazz) {
+        int ordinal = this.origin.readInt();
+        T[] constants = clazz.getEnumConstants();
+        if (ordinal < 0 || ordinal >= constants.length) {
+            throw new IllegalArgumentException("Invalid enum ordinal: " + ordinal);
+        }
+        return constants[ordinal];
+    }
+
+    public <T> void writeList(List<T> list) {
+        String type = list.get(0).getClass().getName();
+
+        writeString(type);
+        writeInt(list.size());
+
+        switch (type) {
+            case "java.lang.String" -> list.forEach(item -> writeString((String) item));
+            case "java.lang.Boolean" -> list.forEach(item -> writeBoolean((Boolean) item));
+            case "java.lang.Integer" -> list.forEach(item -> writeInt((Integer) item));
+            case "java.lang.Long" -> list.forEach(item -> writeLong((Long) item));
+            case "java.lang.Float" -> list.forEach(item -> writeFloat((Float) item));
+            case "java.lang.Double" -> list.forEach(item -> writeDouble((Double) item));
+            case "java.lang.Short" -> list.forEach(item -> writeShort((Short) item));
+            case "java.util.UUID" -> list.forEach(item -> writeUniqueId((UUID) item));
+            default -> throw new IllegalArgumentException("Unsupported type: " + type);
+        }
+    }
+
+    public <T> List<T> readList(Class<T> valueType) {
+        String type = readString();
+        int size = readInt();
+
+        List<T> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            switch (type) {
+                case "java.lang.String" -> list.add(valueType.cast(readString()));
+                case "java.lang.Boolean" -> list.add(valueType.cast(readBoolean()));
+                case "java.lang.Integer" -> list.add(valueType.cast(readInt()));
+                case "java.lang.Long" -> list.add(valueType.cast(readLong()));
+                case "java.lang.Float" -> list.add(valueType.cast(readFloat()));
+                case "java.lang.Double" -> list.add(valueType.cast(readDouble()));
+                case "java.lang.Short" -> list.add(valueType.cast(readShort()));
+                case "java.util.UUID" -> list.add(valueType.cast(readUniqueId()));
+                default -> throw new IllegalArgumentException("Unsupported type: " + type);
+            }
+        }
+        return list;
+    }
+
+    public <K, V> void writeMap(HashMap<K, V> map) {
+        String keyType = map.keySet().iterator().next().getClass().getName();
+        String valueType = map.values().iterator().next().getClass().getName();
+
+        writeString(keyType);
+        writeString(valueType);
+        writeInt(map.size());
+
+        map.forEach((key, value) -> {
+            switch (keyType) {
+                case "java.lang.String" -> writeString((String) key);
+                case "java.lang.Boolean" -> writeBoolean((Boolean) key);
+                case "java.lang.Integer" -> writeInt((Integer) key);
+                case "java.lang.Long" -> writeLong((Long) key);
+                case "java.lang.Float" -> writeFloat((Float) key);
+                case "java.lang.Double" -> writeDouble((Double) key);
+                case "java.lang.Short" -> writeShort((Short) key);
+                case "java.util.UUID" -> writeUniqueId((UUID) key);
+                default -> throw new IllegalArgumentException("Unsupported type: " + keyType);
+            }
+
+            switch (valueType) {
+                case "java.lang.String" -> writeString((String) value);
+                case "java.lang.Boolean" -> writeBoolean((Boolean) value);
+                case "java.lang.Integer" -> writeInt((Integer) value);
+                case "java.lang.Long" -> writeLong((Long) value);
+                case "java.lang.Float" -> writeFloat((Float) value);
+                case "java.lang.Double" -> writeDouble((Double) value);
+                case "java.lang.Short" -> writeShort((Short) value);
+                case "java.util.UUID" -> writeUniqueId((UUID) value);
+                default -> throw new IllegalArgumentException("Unsupported type: " + valueType);
+            }
+        });
+    }
+
+    public <K, V> HashMap<K, V> readMap(Class<K> keyType, Class<V> valueType) {
+        String keyClass = readString();
+        String valueClass = readString();
+        int size = readInt();
+
+        HashMap<K, V> map = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            K key;
+            V value;
+
+            switch (keyClass) {
+                case "java.lang.String" -> key = keyType.cast(readString());
+                case "java.lang.Boolean" -> key = keyType.cast(readBoolean());
+                case "java.lang.Integer" -> key = keyType.cast(readInt());
+                case "java.lang.Long" -> key = keyType.cast(readLong());
+                case "java.lang.Float" -> key = keyType.cast(readFloat());
+                case "java.lang.Double" -> key = keyType.cast(readDouble());
+                case "java.lang.Short" -> key = keyType.cast(readShort());
+                case "java.util.UUID" -> key = keyType.cast(readUniqueId());
+                default -> throw new IllegalArgumentException("Unsupported type: " + keyClass);
+            }
+
+            switch (valueClass) {
+                case "java.lang.String" -> value = valueType.cast(readString());
+                case "java.lang.Boolean" -> value = valueType.cast(readBoolean());
+                case "java.lang.Integer" -> value = valueType.cast(readInt());
+                case "java.lang.Long" -> value = valueType.cast(readLong());
+                case "java.lang.Float" -> value = valueType.cast(readFloat());
+                case "java.lang.Double" -> value = valueType.cast(readDouble());
+                case "java.lang.Short" -> value = valueType.cast(readShort());
+                case "java.util.UUID" -> value = valueType.cast(readUniqueId());
+                default -> throw new IllegalArgumentException("Unsupported type: " + valueClass);
+            }
+
+            map.put(key, value);
+        }
+        return map;
+    }
+
     public PacketBuffer writeByte(byte value) {
         this.origin.writeByte(value);
         return this;
-    }
-
-    public byte readByte() {
-        return this.origin.readByte();
-    }
-
-    public PacketBuffer writeBytes(Buffer bytes) {
-        this.origin.writeBytes(bytes);
-        return this;
-    }
-
-    public PacketBuffer writeBytes(byte[] bytes) {
-
-        this.origin.writeInt(bytes.length);
-
-        for (byte b : bytes) {
-            this.origin.writeByte(b);
-        }
-        return this;
-    }
-
-    public byte[] readBytes() {
-        var elements = new byte[this.origin.readInt()];
-
-        for (int i = 0; i < elements.length; i++) {
-            elements[i] = this.origin.readByte();
-        }
-        return elements;
     }
 
 }

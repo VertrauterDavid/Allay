@@ -20,6 +20,7 @@ public enum NetworkChannelState {
 
     AUTHENTICATION_PENDING,
     AUTHENTICATION_DENIED,
+    AUTHENTICATION_DONE,
     READY,
     CLOSED
 

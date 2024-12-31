@@ -18,8 +18,7 @@ package allay.node.service;
 
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.packets.RedirectToServicePacket;
-import allay.api.player.CloudPlayer;
-import allay.api.service.CloudGroup;
+import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
 import allay.node.AllayNode;
@@ -28,53 +27,41 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
 @RequiredArgsConstructor
 @Accessors(fluent = true)
 @Getter
 @Setter
-public class CloudServiceImpl implements CloudService {
+public class RunningService {
 
     private final AllayNode allayNode;
-
-    private final CloudGroup group;
-    private final CloudServiceState state;
-
-    private final UUID systemId;
-    private final int orderId;
-
-    private final String hostname;
-    private final String ip;
-    private final int port;
+    private final CloudService service;
 
     public void start() {
+        allayNode.logger().info("[§eOPERATOR§r] Starting service §a" + service.name() + "§r on §a" + service.hostname());
+
+        // normally we would have a delay here because the process is starting - we just simulate it for now
+        allayNode.sleep(500);
+
+        // send packet to register the service on all proxies
+        allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.REGISTER));
     }
 
-    @Override
     public void shutdown(boolean force) {
+        allayNode.logger().info("[§eOPERATOR§r] Stopping service §c" + service.name());
+
+        // send packet to unregister the service on all proxies and from the masters service manager
+        service.state(CloudServiceState.STOPPING);
+        allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
+
+        allayNode.sleep(200);
     }
 
-    @Override
     public void execute(String command) {
+        // write the command to the process input stream
     }
 
-    @Override
-    public CompletableFuture<Integer> onlinePlayerCount() {
-        // todo: send request packet and wait for response
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<CloudPlayer> onlinePlayers() {
-        // todo: send request packet and wait for response
-        return null;
-    }
-
-    @Override
     public void sendPacket(Packet packet) {
-        allayNode.networkManager().channel().send(new RedirectToServicePacket(systemId, packet));
+        allayNode.networkManager().channel().send(new RedirectToServicePacket(service.systemId(), packet));
     }
 
 }

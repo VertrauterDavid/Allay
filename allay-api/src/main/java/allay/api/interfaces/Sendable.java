@@ -1,3 +1,7 @@
+package allay.api.interfaces;
+
+import allay.api.network.packet.PacketBuffer;
+
 /**
  * Copyright 2024 https://github.com/VertrauterDavid/Allay
  * <p>
@@ -13,21 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+public interface Sendable {
 
-package allay.api.network.packet;
+    void read(PacketBuffer buffer);
 
-import allay.api.interfaces.Sendable;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@Accessors(fluent = true, chain = true)
-public abstract class Packet implements Sendable {
-
-    public static final String DEFAULT_PACKET_KEY = "0";
-
-    @Setter
-    @Getter
-    private String packetKey = DEFAULT_PACKET_KEY; // used to identify the packet
+    void write(PacketBuffer buffer);
 
 }

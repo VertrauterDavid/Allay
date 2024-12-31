@@ -16,6 +16,7 @@
 
 package allay.master.network;
 
+import allay.api.logger.Logger;
 import allay.api.network.NetworkHandlerBase;
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelState;
@@ -23,10 +24,14 @@ import allay.api.network.packet.Packet;
 import allay.api.network.packet.packets.BroadcastPacket;
 import allay.api.network.packet.packets.RedirectToNodePacket;
 import allay.api.network.packet.packets.RedirectToServicePacket;
+import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthPacket;
+import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.master.AllayMaster;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
+
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 public class NetworkHandler extends NetworkHandlerBase {
@@ -56,22 +61,29 @@ public class NetworkHandler extends NetworkHandlerBase {
 
     @Override
     public void onPacket(NetworkChannel networkChannel, Packet packet) {
-        if (networkChannel.state() != NetworkChannelState.READY || packet instanceof ChannelAuthPacket) {
-            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING && packet instanceof ChannelAuthPacket authPacket) {
+        if (packet instanceof ChannelAuthPacket authPacket) {
+            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING) {
                 if (!(authPacket.authToken().equals(manager.authToken())) || manager.channel(authPacket.id()) != null) {
-                    if (manager.channel(authPacket.id()) != null) {
-                        allayMaster.logger().warning("[§cDENIED§r] " + networkChannel.hostname() + " - ID '" + authPacket.id() + "' already in use");
+                    if (!(authPacket.authToken().equals(manager.authToken()))) {
+                        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket(ChannelAuthFailedPacket.REASON_INVALID_AUTH));
+                    } else if (manager.channel(authPacket.id()) != null) {
+                        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket(ChannelAuthFailedPacket.REASON_INVALID_ID));
                     }
+
                     networkChannel.state(NetworkChannelState.AUTHENTICATION_DENIED);
                     networkChannel.close();
                     return;
                 }
                 networkChannel.id(authPacket.id());
-                networkChannel.state(NetworkChannelState.READY);
+                networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 networkChannel.send(packet);
-                allayMaster.logger().info("[§aVERIFIED§r] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + networkChannel.hostname());
+                allayMaster.logger().info("[§eVERIFIED§r] Successfully authenticated node §a" + (networkChannel.id() != null ? networkChannel.id() : "unknown") + "§r on §a" + networkChannel.hostname());
             }
             return;
+        }
+
+        if (Logger.PACKETS) {
+            allayMaster.logger().info("[§eRECEIVED§r] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + packet.getClass().getSimpleName());
         }
 
         if (packet instanceof BroadcastPacket broadcastPacket) {
@@ -85,11 +97,28 @@ public class NetworkHandler extends NetworkHandlerBase {
         }
 
         if (packet instanceof RedirectToServicePacket redirectPacket) {
-            manager.channel("service-" + redirectPacket.receiver()).send(redirectPacket.targetPacket()); // todo: channel name?
+            manager.channel("service-" + redirectPacket.receiver()).send(redirectPacket.targetPacket());
             return;
         }
 
-        allayMaster.logger().info("[§eRECEIVED§r] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + packet.getClass().getSimpleName());
+        if (packet instanceof NodeStatusPacket statusPacket) {
+            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_DONE && statusPacket.state() == NetworkChannelState.READY) {
+                networkChannel.state(statusPacket.state());
+                networkChannel.send(packet);
+                allayMaster.logger().debug("[READY] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + networkChannel.hostname());
+            }
+        }
+
+        if (packet.packetKey() != null && !(packet.packetKey().equalsIgnoreCase(Packet.DEFAULT_PACKET_KEY))) {
+            for (NetworkChannel channel : manager.channels()) {
+                CompletableFuture<Packet> future = channel.futures().getOrDefault(packet.packetKey(), null);
+                if (future != null) {
+                    future.complete(packet);
+                    return;
+                }
+            }
+        }
+
         manager.listeners().forEach(listener -> listener.onPacket(packet));
         manager.channels().stream().filter(channel -> channel != networkChannel).forEach(channel -> channel.send(packet));
     }
