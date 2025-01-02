@@ -16,5 +16,32 @@
 
 package allay.plugin;
 
-public interface ServiceInstance {
+import allay.api.AllayApi;
+import allay.plugin.network.NetworkConfig;
+import allay.plugin.network.NetworkManager;
+
+import java.util.UUID;
+
+public abstract class ServiceInstance {
+
+    private NetworkConfig networkConfig;
+    private NetworkManager networkManager;
+
+    public void enable() {
+        AllayApi.instance(new AllayApi());
+
+        networkConfig = new NetworkConfig(
+                UUID.fromString(System.getenv("ALLAY_NETWORK_SYSTEM_ID")),
+                System.getenv("ALLAY_NETWORK_AUTH_TOKEN"),
+                System.getenv("ALLAY_NETWORK_HOST"),
+                Integer.parseInt(System.getenv("ALLAY_NETWORK_PORT"))
+        );
+        networkManager = new NetworkManager(networkConfig);
+        networkManager.bootSync();
+    }
+
+    public void disable() {
+        networkManager.shutdownSync();
+    }
+
 }

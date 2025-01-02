@@ -16,19 +16,21 @@
 
 package allay.plugin.server.bukkit;
 
-import allay.plugin.server.ServerInstance;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class AllayBukkit extends JavaPlugin implements ServerInstance {
+public class AllayBukkit extends JavaPlugin {
+
+    private AllayBukkitImpl impl;
 
     @Override
     public void onEnable() {
-        // plugin load
+        impl = new AllayBukkitImpl();
+        impl.enable();
     }
 
     @Override
     public void onDisable() {
-        // plugin unload
+        impl.disable();
     }
 
 }

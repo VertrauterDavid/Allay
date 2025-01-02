@@ -24,9 +24,12 @@ import allay.api.network.packet.Packet;
 import allay.api.network.packet.packets.BroadcastPacket;
 import allay.api.network.packet.packets.RedirectToNodePacket;
 import allay.api.network.packet.packets.RedirectToServicePacket;
+import allay.api.network.packet.packets.service.ServiceAuthPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthPacket;
 import allay.api.network.packet.packets.sys.NodeStatusPacket;
+import allay.api.service.CloudService;
+import allay.api.service.CloudServiceState;
 import allay.master.AllayMaster;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +81,39 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 networkChannel.send(packet);
                 allayMaster.logger().info("[§eVERIFIED§r] Successfully authenticated node §a" + (networkChannel.id() != null ? networkChannel.id() : "unknown") + "§r on §a" + networkChannel.hostname());
+            }
+            return;
+        }
+        if (packet instanceof ServiceAuthPacket authPacket) {
+            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING) {
+                CloudService service = allayMaster.serviceManager().service(authPacket.systemId());
+
+                if (service == null) {
+                    networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket("Service not found"));
+                    networkChannel.state(NetworkChannelState.AUTHENTICATION_DENIED);
+                    networkChannel.close();
+                    return;
+                }
+
+                if (!(authPacket.authToken().equals(manager.authToken())) || manager.channel("service-" + authPacket.systemId()) != null) {
+                    if (!(authPacket.authToken().equals(manager.authToken()))) {
+                        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket(ChannelAuthFailedPacket.REASON_INVALID_AUTH));
+                    } else if (manager.channel("service-" + authPacket.systemId()) != null) {
+                        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket(ChannelAuthFailedPacket.REASON_INVALID_ID));
+                    }
+                    System.out.println(1);
+
+                    networkChannel.state(NetworkChannelState.AUTHENTICATION_DENIED);
+                    networkChannel.close();
+                    return;
+                }
+
+                networkChannel.id("service-" + authPacket.systemId());
+                networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
+                networkChannel.send(packet);
+
+                service.state(CloudServiceState.ONLINE);
+                allayMaster.logger().info("[§eVERIFIED§r] Successfully authenticated service §a" + service.name() + "§r on §a" + networkChannel.hostname());
             }
             return;
         }

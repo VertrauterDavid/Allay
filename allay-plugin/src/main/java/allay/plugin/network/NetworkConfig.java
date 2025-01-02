@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package allay.plugin.proxy;
+package allay.plugin.network;
 
-import allay.plugin.ServiceInstance;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.UUID;
 
-public abstract class ProxyInstance extends ServiceInstance {
+@RequiredArgsConstructor
+@Accessors(fluent = true)
+@Getter
+public class NetworkConfig {
 
-    public abstract void message(UUID uuid, String message);
-    public abstract void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut);
-    public abstract void actionbar(UUID uuid, String message);
-    public abstract void connect(UUID uuid, String serviceName);
+    private final UUID systemId;
+    private final String authToken;
+    private final String host;
+    private final int port;
 
 }

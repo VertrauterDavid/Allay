@@ -18,5 +18,5 @@ package allay.plugin.server;
 
 import allay.plugin.ServiceInstance;
 
-public interface ServerInstance extends ServiceInstance {
+public abstract class ServerInstance extends ServiceInstance {
 }

@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package allay.plugin.proxy;
+package allay.plugin.server.bukkit;
 
 import allay.plugin.ServiceInstance;
 
-import java.util.UUID;
-
-public abstract class ProxyInstance extends ServiceInstance {
-
-    public abstract void message(UUID uuid, String message);
-    public abstract void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut);
-    public abstract void actionbar(UUID uuid, String message);
-    public abstract void connect(UUID uuid, String serviceName);
-
+public class AllayBukkitImpl extends ServiceInstance {
 }

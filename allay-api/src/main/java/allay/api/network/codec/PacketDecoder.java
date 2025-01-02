@@ -24,10 +24,12 @@ import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelHandlerContext;
 import io.netty5.handler.codec.ByteToMessageDecoder;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class PacketDecoder extends ByteToMessageDecoder {
 
+    @Nullable
     private final Logger logger;
 
     @Override
@@ -35,7 +37,9 @@ public class PacketDecoder extends ByteToMessageDecoder {
         PacketBuffer buffer = new PacketBuffer(in);
 
         if (in.readableBytes() < Integer.BYTES) {
-            logger.error("Insufficient data to decode packet class name length.");
+            if (logger != null) {
+                logger.error("Insufficient data to decode packet class name length.");
+            }
             return;
         }
 
@@ -43,13 +47,17 @@ public class PacketDecoder extends ByteToMessageDecoder {
 
         try {
             if (in.readableBytes() < Integer.BYTES) {
-                logger.error("Insufficient data to read the packet payload size.");
+                if (logger != null) {
+                    logger.error("Insufficient data to read the packet payload size.");
+                }
                 return;
             }
 
             int readableBytes = buffer.readInt();
             if (in.readableBytes() < readableBytes) {
-                logger.error("Insufficient data to read the packet payload. Expected: " + readableBytes + ", Available: " + in.readableBytes());
+                if (logger != null) {
+                    logger.error("Insufficient data to read the packet payload. Expected: " + readableBytes + ", Available: " + in.readableBytes());
+                }
                 return;
             }
 
@@ -62,12 +70,16 @@ public class PacketDecoder extends ByteToMessageDecoder {
                 packet.read(content);
             }
 
-            logger.debug("Decoding packet: " + className + ", readable bytes: " + readableBytes);
+            if (logger != null) {
+                logger.debug("Decoding packet: " + className + ", readable bytes: " + readableBytes);
+            }
 
             buffer.resetBuffer();
             channelHandlerContext.fireChannelRead(packet);
         } catch (Exception exception) {
-            logger.exception(exception);
+            if (logger != null) {
+                logger.exception(exception);
+            }
         }
     }
 

@@ -23,10 +23,12 @@ import allay.api.network.codec.PacketEncoder;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelInitializer;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class NetworkChannelInitializer extends ChannelInitializer<Channel> {
 
+    @Nullable
     private final Logger logger;
     private final NetworkHandlerBase networkHandler;
 

@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package allay.node.network;
+package allay.plugin.network;
 
-import allay.api.logger.Logger;
 import allay.api.network.NetworkHandlerBase;
 import allay.api.network.NetworkState;
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.Packet;
+import allay.api.network.packet.packets.service.ServiceAuthPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
-import allay.api.network.packet.packets.sys.ChannelAuthPacket;
-import allay.api.network.packet.packets.sys.NodeStatusPacket;
-import allay.node.AllayNode;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
@@ -34,9 +31,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class NetworkHandler extends NetworkHandlerBase {
 
-    // todo: auto reconnect on master restart
-
-    private final AllayNode allayNode;
     private final NetworkManager manager;
     private final CompletableFuture<Void> bootFuture;
 
@@ -48,7 +42,7 @@ public class NetworkHandler extends NetworkHandlerBase {
     @Override
     public void onConnect(NetworkChannel networkChannel) {
         manager.channel(networkChannel);
-        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthPacket(manager.id(), manager.authToken()));
+        networkChannel.nettyChannel().writeAndFlush(new ServiceAuthPacket(manager.config().systemId(), manager.config().authToken()));
     }
 
     @Override
@@ -62,49 +56,24 @@ public class NetworkHandler extends NetworkHandlerBase {
 
     @Override
     public void onPacket(NetworkChannel networkChannel, Packet packet) {
-        if (packet instanceof ChannelAuthPacket authPacket) {
+        if (packet instanceof ServiceAuthPacket authPacket) {
             if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING) {
-                if (!(authPacket.authToken().equals(manager.authToken()))) return;
-                networkChannel.id(authPacket.id());
+                if (!(authPacket.authToken().equals(manager.config().authToken()))) return;
+                networkChannel.id("service-" + authPacket.systemId());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 bootFuture.complete(null);
-                allayNode.logger().info("[§eVERIFIED§r] Successfully authenticated with §a" + networkChannel.hostname());
             }
             return;
         }
 
         if (packet instanceof ChannelAuthFailedPacket authPacket) {
-            allayNode.logger().warning(" ");
-            allayNode.logger().warning("§cAuthentication to master failed");
-            allayNode.logger().warning("§cReason§r: " + authPacket.reason());
-            switch (authPacket.reason()) {
-                case ChannelAuthFailedPacket.REASON_INVALID_AUTH -> {
-                    allayNode.logger().warning(" ");
-                    allayNode.logger().warning("§cCheck the auth-token in §cstorage/config/netty.json");
-                }
-                case ChannelAuthFailedPacket.REASON_INVALID_ID -> {
-                    allayNode.logger().warning(" ");
-                    allayNode.logger().warning("§cCheck the id in §cstorage/config/netty.json");
-                }
-            }
-            allayNode.logger().warning(" ");
-
-            allayNode.skipShutdownHook(true);
-            allayNode.sleep(2000);
+            System.out.println(" ");
+            System.out.println("§cAuthentication to master failed");
+            System.out.println("§cReason§r: " + authPacket.reason());
+            System.out.println(" ");
 
             System.exit(0);
             return;
-        }
-
-        if (Logger.PACKETS) {
-            allayNode.logger().info("[§eRECEIVED§r] " + packet.getClass().getSimpleName());
-        }
-
-        if (packet instanceof NodeStatusPacket statusPacket) {
-            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_DONE && statusPacket.state() == NetworkChannelState.READY) {
-                networkChannel.state(statusPacket.state());
-                bootFuture.complete(null);
-            }
         }
 
         if (packet.packetKey() != null && !(packet.packetKey().equalsIgnoreCase(Packet.DEFAULT_PACKET_KEY))) {
