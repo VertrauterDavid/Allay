@@ -52,7 +52,7 @@ public class AllayNode extends AllayInstance {
 
     @Override
     public void onShutdown() {
-        // todo send a packet to the master - we are now shutting down and can't handle services anymore
+        networkManager.channel().send(new NodeStatusPacket(NetworkChannelState.CLOSED));
 
         if (serviceManager != null) {
             serviceManager.shutdown();

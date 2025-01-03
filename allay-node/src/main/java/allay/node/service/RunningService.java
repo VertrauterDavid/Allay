@@ -51,9 +51,7 @@ public class RunningService {
 
         // send packet to unregister the service on all proxies and from the masters service manager
         service.state(CloudServiceState.STOPPING);
-        if (allayNode.networkManager().channel() != null) {
-            allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
-        }
+        allayNode.networkManager().channel().sendIfActive(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
 
         allayNode.sleep(200);
     }

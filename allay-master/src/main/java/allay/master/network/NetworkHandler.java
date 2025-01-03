@@ -138,11 +138,9 @@ public class NetworkHandler extends NetworkHandlerBase {
         }
 
         if (packet instanceof NodeStatusPacket statusPacket) {
-            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_DONE && statusPacket.state() == NetworkChannelState.READY) {
-                networkChannel.state(statusPacket.state());
-                networkChannel.send(packet);
-                allayMaster.logger().debug("[READY] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + networkChannel.hostname());
-            }
+            networkChannel.state(statusPacket.state());
+            networkChannel.send(packet);
+            allayMaster.logger().debug("[STATUS] " + (networkChannel.id() != null ? networkChannel.id() : "unknown") + " - " + networkChannel.hostname() + " - " + statusPacket.state());
         }
 
         if (packet.packetKey() != null && !(packet.packetKey().equalsIgnoreCase(Packet.DEFAULT_PACKET_KEY))) {

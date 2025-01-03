@@ -42,7 +42,7 @@ public class NetworkChannel {
     private NetworkChannelState state = NetworkChannelState.AUTHENTICATION_PENDING;
 
     public void send(Packet packet) {
-        if (!(nettyChannel.isOpen() && nettyChannel.isActive())) {
+        if (!(this.nettyChannel.isOpen() && this.nettyChannel.isActive())) {
             throw new IllegalStateException("Channel is not open or active");
         }
 
@@ -51,6 +51,16 @@ public class NetworkChannel {
         }
 
         this.nettyChannel.writeAndFlush(packet);
+    }
+
+    public void sendIfActive(Packet packet) {
+        if (this.isActive()) {
+            this.send(packet);
+        }
+    }
+
+    public boolean isActive() {
+        return this.nettyChannel.isOpen() && this.nettyChannel.isActive() && (this.state == NetworkChannelState.AUTHENTICATION_DONE || this.state == NetworkChannelState.READY);
     }
 
     public CompletableFuture<Packet> sendAndReceive(Packet packet) {

@@ -101,8 +101,9 @@ public class NetworkHandler extends NetworkHandlerBase {
         }
 
         if (packet instanceof NodeStatusPacket statusPacket) {
-            if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_DONE && statusPacket.state() == NetworkChannelState.READY) {
-                networkChannel.state(statusPacket.state());
+            networkChannel.state(statusPacket.state());
+
+            if (statusPacket.state() == NetworkChannelState.READY) {
                 bootFuture.complete(null);
             }
         }

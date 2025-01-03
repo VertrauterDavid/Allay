@@ -16,6 +16,7 @@
 
 package allay.master.service;
 
+import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.CloudService;
 import allay.master.AllayMaster;
@@ -49,7 +50,7 @@ public class ServiceQueue {
 
     private void process() {
         Queue<CloudService> tempQueue = new ConcurrentLinkedQueue<>(queue);
-        tempQueue.removeIf(service -> (service.node() == null || allayMaster.networkManager().channel(service.node()) == null));
+        tempQueue.removeIf(service -> (service.node() == null || allayMaster.networkManager().channel(service.node()) == null) || allayMaster.networkManager().channel(service.node()).state() == NetworkChannelState.CLOSED);
 
         if (tempQueue.isEmpty()) return;
 
