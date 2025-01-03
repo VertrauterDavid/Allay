@@ -25,8 +25,6 @@ import java.io.File;
 @Getter
 public enum JavaVersion {
 
-    // todo: add some pre-defined versions and the possibility to add own versions without recompiling the project
-
     DEFAULT("default", null); // system java environment
 
     private final String displayName;

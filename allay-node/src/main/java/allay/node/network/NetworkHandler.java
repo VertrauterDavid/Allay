@@ -68,7 +68,7 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.id(authPacket.id());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 bootFuture.complete(null);
-                allayNode.logger().info("[§eVERIFIED§r] Successfully authenticated with §a" + networkChannel.hostname());
+                allayNode.logger().info("Successfully authenticated with §a" + networkChannel.hostname());
             }
             return;
         }

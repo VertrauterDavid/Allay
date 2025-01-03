@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package allay.api.logger;
+package allay.api.util;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.experimental.UtilityClass;
 
-@RequiredArgsConstructor
-@Accessors(fluent = true)
-@Getter
-public enum LogType {
+@UtilityClass
+public class SystemUtil {
 
-    NONE("", null),
-    INFO("INFO", "§a"),
-    WARNING("WARN", "§e"),
-    ERROR("FAIL", "§c"),
-    DEBUG("TEST", "§7"); // "TEST" because it's the same length as info and warn
-
-    private final String display;
-    private final String color;
+    public static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
 
 }

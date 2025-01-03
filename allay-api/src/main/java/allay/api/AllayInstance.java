@@ -40,13 +40,13 @@ public abstract class AllayInstance {
     public AllayInstance() {
         logger = new Logger(this);
         logger.info("");
-        logger.info("§9         _   _ _            §7___ _             _ ");
-        logger.info("§9        /_\\ | | |__ _ _  _ §7/ __| |___ _  _ __| |");
-        logger.info("§9       / _ \\| | / _` | || |§7 (__| / _ \\ || / _` |");
-        logger.info("§9      /_/ \\_\\_|_\\__,_|\\_, |§7\\___|_\\___/\\_,_\\__,_|");
-        logger.info("§9                      |__/");
+        logger.info("§c         _   _ _            §7___ _             _ ");
+        logger.info("§c        /_\\ | | |__ _ _  _ §7/ __| |___ _  _ __| |");
+        logger.info("§c       / _ \\| | / _` | || |§7 (__| / _ \\ || / _` |");
+        logger.info("§c      /_/ \\_\\_|_\\__,_|\\_, |§7\\___|_\\___/\\_,_\\__,_|");
+        logger.info("§c                      |__/");
         logger.info("");
-        logger.info("   §7> §9allay-cloud §7provided by §9github.com/VertrauterDavid");
+        logger.info("   §7> §callay-cloud §7provided by §cgithub.com/VertrauterDavid");
         logger.info("   §7> the simplest all in one cloud system");
         logger.info("");
 

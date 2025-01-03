@@ -80,7 +80,7 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.id(authPacket.id());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 networkChannel.send(packet);
-                allayMaster.logger().info("[§eVERIFIED§r] Successfully authenticated node §a" + (networkChannel.id() != null ? networkChannel.id() : "unknown") + "§r on §a" + networkChannel.hostname());
+                allayMaster.logger().info("Successfully authenticated node §a" + (networkChannel.id() != null ? networkChannel.id() : "unknown") + "§r on §a" + networkChannel.hostname());
             }
             return;
         }
@@ -113,7 +113,7 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.send(packet);
 
                 service.state(CloudServiceState.ONLINE);
-                allayMaster.logger().info("[§eVERIFIED§r] Successfully authenticated service §a" + service.name() + "§r on §a" + networkChannel.hostname());
+                allayMaster.logger().info("Successfully authenticated service §a" + service.name() + "§r on §a" + networkChannel.hostname());
             }
             return;
         }

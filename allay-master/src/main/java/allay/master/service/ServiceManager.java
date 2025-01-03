@@ -97,7 +97,7 @@ public class ServiceManager {
                         allayMaster.networkManager().channel("service-" + proxy.systemId()).send(packet);
                     });
 
-                    allayMaster.logger().info("[§eOPERATOR§r] Registered service §a" + service.name() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
+                    allayMaster.logger().info("Registered service §a" + service.name() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
                 }
 
                 case UNREGISTER -> {
@@ -111,7 +111,7 @@ public class ServiceManager {
                         allayMaster.networkManager().channel("service-" + proxy.systemId()).send(packet);
                     });
 
-                    allayMaster.logger().info("[§eOPERATOR§r] Unregistered service §c" + service.name());
+                    allayMaster.logger().info("Unregistered service §c" + service.name());
                 }
             }
         });

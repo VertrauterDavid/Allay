@@ -37,7 +37,7 @@ public class RunningService {
     private final CloudService service;
 
     public void start() {
-        allayNode.logger().info("[§eOPERATOR§r] Starting service §a" + service.name() + "§r on §a" + service.hostname());
+        allayNode.logger().info("Starting service §a" + service.name() + "§r on §a" + service.hostname() + "§r...");
 
         // normally we would have a delay here because the process is starting - we just simulate it for now
         allayNode.sleep(500);
@@ -47,11 +47,13 @@ public class RunningService {
     }
 
     public void shutdown(boolean force) {
-        allayNode.logger().info("[§eOPERATOR§r] Stopping service §c" + service.name());
+        allayNode.logger().info("Stopping service §c" + service.name() + "§r...");
 
         // send packet to unregister the service on all proxies and from the masters service manager
         service.state(CloudServiceState.STOPPING);
-        allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
+        if (allayNode.networkManager().channel() != null) {
+            allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
+        }
 
         allayNode.sleep(200);
     }
