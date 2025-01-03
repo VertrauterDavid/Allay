@@ -18,15 +18,13 @@ package allay.api.service;
 
 import allay.api.logger.Logger;
 import allay.api.service.util.VelocityFetcher;
+import allay.api.util.FileUtil;
 import allay.api.util.SystemUtil;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.concurrent.TimeUnit;
 
 @Accessors(fluent = true)
 @Getter
@@ -49,12 +47,14 @@ public enum ServiceVersion {
     VELOCITY_LATEST("Velocity", "-", "shutdown", true, false, 40500),
     GEYSER_LATEST("Geyser", "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone", "stop", false, true, 40600),
 
+    /*
     SPIGOT_1_19_2("Spigot 1.19.2", "https://download.getbukkit.org/spigot/spigot-1.19.2.jar"),
     SPIGOT_1_19_4("Spigot 1.19.4", "https://download.getbukkit.org/spigot/spigot-1.19.4.jar"),
     SPIGOT_1_20_2("Spigot 1.20.2", "https://download.getbukkit.org/spigot/spigot-1.20.2.jar"),
     SPIGOT_1_20_4("Spigot 1.20.4", "https://download.getbukkit.org/spigot/spigot-1.20.4.jar"),
     SPIGOT_1_20_6("Spigot 1.20.6", "https://download.getbukkit.org/spigot/spigot-1.20.6.jar"),
     SPIGOT_1_21("Spigot 1.21", "https://download.getbukkit.org/spigot/spigot-1.21.jar"),
+     */
 
     PAPER_1_19_2("Paper 1.19.2", "https://api.papermc.io/v2/projects/paper/versions/1.19.2/builds/307/downloads/paper-1.19.2-307.jar"),
     PAPER_1_19_4("Paper 1.19.4", "https://api.papermc.io/v2/projects/paper/versions/1.19.4/builds/550/downloads/paper-1.19.4-550.jar"),
@@ -102,25 +102,11 @@ public enum ServiceVersion {
         if (downloaded() || SystemUtil.isWindows()) return;
         if (!(jarFile.getParentFile().exists() || jarFile.getParentFile().mkdirs())) return;
 
+        logger.info("Downloading §a" + displayName + " §7from " + downloadUrl.substring(8).split("/")[0] + "...");
+
         try {
             String downloadUrl = (this == VELOCITY_LATEST) ? VelocityFetcher.getDownloadUrl() : this.downloadUrl;
-            logger.info("Downloading §a" + displayName + " §7from " + downloadUrl.substring(8).split("/")[0] + "...");
-
-            ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", "cd " + jarFile.getParentFile().getAbsolutePath() + " && wget --tries=3 --timeout=30 -O " + jarFile.getName() + " " + downloadUrl);
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                logger.debug(line);
-            }
-            logger.debug(" ");
-
-            if (!process.waitFor(30, TimeUnit.SECONDS)) {
-                process.destroy();
-                throw new InterruptedException();
-            }
+            FileUtil.wget(logger, jarFile, downloadUrl);
 
             logger.info("Download of §a" + displayName + " §7completed!");
         } catch (IOException | InterruptedException exception) {

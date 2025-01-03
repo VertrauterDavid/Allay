@@ -18,8 +18,9 @@ package allay.api.service.util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,14 +34,17 @@ public class VelocityFetcher {
     private static final String BUILDS = "https://api.papermc.io/v2/projects/velocity/versions/%version/";
     private static final String DOWNLOAD = "https://api.papermc.io/v2/projects/velocity/versions/%version/builds/%build/downloads/velocity-%version-%build.jar";
 
+    @SneakyThrows
     public static String getDownloadUrl() {
-        JSONObject versionsJson = new JSONObject(sendRequest(VERSIONS));
-        JSONArray versionsArray = versionsJson.getJSONArray("versions");
-        String version = versionsArray.getString(versionsArray.length() - 1);
+        JSONParser parser = new JSONParser();
 
-        JSONObject buildsJson = new JSONObject(sendRequest(BUILDS.replace("%version", version)));
-        JSONArray buildsArray = buildsJson.getJSONArray("builds");
-        int build = buildsArray.getInt(buildsArray.length() - 1);
+        JSONObject versionsJson = (JSONObject) parser.parse(sendRequest(VERSIONS));
+        JSONArray versionsArray = (JSONArray) versionsJson.get("versions");
+        String version = (String) versionsArray.get(versionsArray.size() - 1);
+
+        JSONObject buildsJson = (JSONObject) parser.parse(sendRequest(BUILDS.replace("%version", version)));
+        JSONArray buildsArray = (JSONArray) buildsJson.get("builds");
+        long build = (long) buildsArray.get(buildsArray.size() - 1);
 
         return DOWNLOAD
                 .replace("%version", version)

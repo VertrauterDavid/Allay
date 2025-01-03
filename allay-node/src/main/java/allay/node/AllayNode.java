@@ -21,6 +21,7 @@ import allay.api.network.channel.NetworkChannelState;
 import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.node.network.NetworkManager;
 import allay.node.service.ServiceManager;
+import allay.node.util.DownloadUtil;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -37,6 +38,9 @@ public class AllayNode extends AllayInstance {
 
     @Override
     public void onStartup() {
+        // download all required files
+        DownloadUtil.downloadAll(logger());
+
         networkManager = new NetworkManager(this);
         networkManager.bootSync();
 
