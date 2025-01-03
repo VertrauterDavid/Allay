@@ -140,10 +140,13 @@ public class PacketBuffer {
     }
 
     public <T> void writeList(List<T> list) {
-        String type = list.get(0).getClass().getName();
-
-        writeString(type);
         writeInt(list.size());
+        if (list.isEmpty()) {
+            return;
+        }
+
+        String type = list.get(0).getClass().getName();
+        writeString(type);
 
         switch (type) {
             case "java.lang.String" -> list.forEach(item -> writeString((String) item));
@@ -159,10 +162,14 @@ public class PacketBuffer {
     }
 
     public <T> List<T> readList(Class<T> valueType) {
-        String type = readString();
         int size = readInt();
+        if (size == 0) {
+            return new ArrayList<T>();
+        }
 
+        String type = readString();
         List<T> list = new ArrayList<>(size);
+
         for (int i = 0; i < size; i++) {
             switch (type) {
                 case "java.lang.String" -> list.add(valueType.cast(readString()));
@@ -176,16 +183,21 @@ public class PacketBuffer {
                 default -> throw new IllegalArgumentException("Unsupported type: " + type);
             }
         }
+
         return list;
     }
 
     public <K, V> void writeMap(HashMap<K, V> map) {
+        writeInt(map.size());
+        if (map.isEmpty()) {
+            return;
+        }
+
         String keyType = map.keySet().iterator().next().getClass().getName();
         String valueType = map.values().iterator().next().getClass().getName();
 
         writeString(keyType);
         writeString(valueType);
-        writeInt(map.size());
 
         map.forEach((key, value) -> {
             switch (keyType) {
@@ -215,11 +227,15 @@ public class PacketBuffer {
     }
 
     public <K, V> HashMap<K, V> readMap(Class<K> keyType, Class<V> valueType) {
+        int size = readInt();
+        if (size == 0) {
+            return new HashMap<K, V>();
+        }
+
         String keyClass = readString();
         String valueClass = readString();
-        int size = readInt();
-
         HashMap<K, V> map = new HashMap<>(size);
+
         for (int i = 0; i < size; i++) {
             K key;
             V value;
@@ -250,12 +266,8 @@ public class PacketBuffer {
 
             map.put(key, value);
         }
-        return map;
-    }
 
-    public PacketBuffer writeByte(byte value) {
-        this.origin.writeByte(value);
-        return this;
+        return map;
     }
 
 }
