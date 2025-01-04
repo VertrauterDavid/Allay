@@ -36,13 +36,15 @@ public abstract class NetworkComponent {
     public abstract CompletableFuture<Void> boot();
 
     public CompletableFuture<Void> shutdown() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        this.bossGroup.shutdownGracefully().addListener(v -> {
+        return CompletableFuture.runAsync(() -> {
+            shutdownGroup().join();
             this.state = NetworkState.CONNECTION_CLOSED;
-            future.complete(null);
         });
+    }
 
+    private CompletableFuture<Void> shutdownGroup() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        this.bossGroup.shutdownGracefully().addListener(v -> future.complete(null));
         return future;
     }
 

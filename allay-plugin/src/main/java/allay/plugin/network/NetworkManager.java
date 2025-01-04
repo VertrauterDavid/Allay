@@ -73,6 +73,8 @@ public class NetworkManager extends NetworkComponent {
                 System.out.println("§cFailed to connect to master");
                 System.out.println("§cCheck the host and port in §cstorage/config/netty.json");
                 System.out.println(" ");
+                System.out.println("§cReason§r: " + futureChannel.cause().getLocalizedMessage());
+                System.out.println(" ");
 
                 System.exit(0);
             }

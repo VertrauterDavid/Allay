@@ -18,7 +18,6 @@ package allay.master.service;
 
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServicePacket;
-import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.api.service.*;
 import allay.api.util.JsonFile;
 import allay.master.AllayMaster;
@@ -56,21 +55,6 @@ public class ServiceManager {
             if (file.getName().endsWith(".json")) {
                 load(file.getName().replace(".json", ""));
             }
-        });
-
-        // todo: remove - test
-        allayMaster.networkManager().addListener(NodeStatusPacket.class, packet -> {
-            /*
-            startService(services.keySet().iterator().next()).thenAccept(services -> {
-                System.out.println("---------------------");
-                System.out.println("Started services:");
-                services.forEach(service -> System.out.println("- " + service.name() + ": " + service.hostname()));
-            });
-            */
-            /*
-            CloudService service = new CloudService(services.keySet().iterator().next(), CloudServiceState.QUEUE, UUID.randomUUID(), 1, "Node-001", "0.0.0.0", 0);
-            queue.add(service);
-             */
         });
 
         allayMaster.networkManager().addListener(ServicePacket.class, packet -> {

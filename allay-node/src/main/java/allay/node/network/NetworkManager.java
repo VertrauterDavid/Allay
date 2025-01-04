@@ -96,6 +96,8 @@ public class NetworkManager extends NetworkComponent {
                 allayNode.logger().warning("§cFailed to connect to master");
                 allayNode.logger().warning("§cCheck the host and port in §cstorage/config/netty.json");
                 allayNode.logger().warning(" ");
+                allayNode.logger().warning("§cReason§r: " + futureChannel.cause().getLocalizedMessage());
+                allayNode.logger().warning(" ");
 
                 allayNode.skipShutdownHook(true);
                 allayNode.sleep(2000);

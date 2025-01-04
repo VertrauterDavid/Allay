@@ -56,7 +56,7 @@ public class AllayNode extends AllayInstance {
 
     @Override
     public void onShutdown() {
-        networkManager.channel().send(new NodeStatusPacket(NetworkChannelState.CLOSED));
+        networkManager.channel().sendIfActive(new NodeStatusPacket(NetworkChannelState.CLOSED));
 
         if (serviceManager != null) {
             serviceManager.shutdown();

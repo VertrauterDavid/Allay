@@ -86,7 +86,20 @@ public class NetworkManager extends NetworkComponent {
                 state(NetworkState.CONNECTION_ESTABLISHED);
             } else {
                 state(NetworkState.CONNECTION_FAILED);
+
+                allayMaster.logger().warning(" ");
+                allayMaster.logger().warning("§cFailed to start the netty server");
+                allayMaster.logger().warning(" ");
+                allayMaster.logger().warning(futureChannel.cause().getLocalizedMessage());
+                allayMaster.logger().warning(" ");
+
+                allayMaster.skipShutdownHook(true);
+                allayMaster.sleep(2000);
+
+                System.exit(0);
+                return;
             }
+
             future.complete(null);
         });
 
@@ -96,8 +109,9 @@ public class NetworkManager extends NetworkComponent {
     @Override
     public CompletableFuture<Void> shutdown() {
         for (NetworkChannel channel : this.channels) {
-            channel.close();
+            channel.close().join();
         }
+
         return super.shutdown();
     }
 

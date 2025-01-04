@@ -101,7 +101,6 @@ public class NetworkHandler extends NetworkHandlerBase {
                     } else if (manager.channel("service-" + authPacket.systemId()) != null) {
                         networkChannel.nettyChannel().writeAndFlush(new ChannelAuthFailedPacket(ChannelAuthFailedPacket.REASON_INVALID_ID));
                     }
-                    System.out.println(1);
 
                     networkChannel.state(NetworkChannelState.AUTHENTICATION_DENIED);
                     networkChannel.close();

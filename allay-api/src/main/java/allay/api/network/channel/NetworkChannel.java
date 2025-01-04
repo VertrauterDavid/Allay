@@ -79,9 +79,16 @@ public class NetworkChannel {
         return future;
     }
 
-    public void close() {
-        if (this.nettyChannel == null) return;
-        this.nettyChannel.close();
+    public CompletableFuture<Void> close() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        if (this.nettyChannel != null) {
+            this.nettyChannel.close().addListener(v -> future.complete(null));
+        } else {
+            future.completeExceptionally(new IllegalStateException("Netty channel is null"));
+        }
+
+        return future;
     }
 
     public boolean verifyChannel(Channel channel) {
