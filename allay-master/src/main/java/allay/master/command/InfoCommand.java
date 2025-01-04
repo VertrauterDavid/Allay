@@ -20,6 +20,7 @@ import allay.api.console.command.Command;
 import allay.master.AllayMaster;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class InfoCommand extends Command<AllayMaster> {
@@ -30,20 +31,33 @@ public class InfoCommand extends Command<AllayMaster> {
 
     @Override
     public void execute(String[] args) {
-        allayInstance.logger().info("");
-        allayInstance.logger().info("| Channels (" + allayInstance.networkManager().channels().size() + "):");
-        allayInstance.networkManager().channels().forEach(channel -> allayInstance.logger().info("| - " + channel.id() + " - " + channel.hostname() + " - " + channel.state().name()));
-        allayInstance.logger().info("");
-        allayInstance.logger().info("| Services (" + allayInstance.serviceManager().services().values().stream().mapToInt(ArrayList::size).sum() + "):");
+        allayInstance.logger().info("│");
+        allayInstance.logger().info("│ Connected Nodes (" + allayInstance.networkManager().channels().size() + "):");
+        allayInstance.networkManager().channels().forEach(channel -> allayInstance.logger().info("│ • " + channel.id() + " » " + channel.hostname() + " (" + channel.state().name() + ")"));
+        allayInstance.logger().info("│");
+        allayInstance.logger().info("│ Running Services (" + allayInstance.serviceManager().services().values().stream().mapToInt(ArrayList::size).sum() + "):");
         allayInstance.serviceManager().services().forEach((group, services) -> {
             if (services.isEmpty()) return;
-            allayInstance.logger().info("| - " + group.name() + " (" + services.size() + "):");
-            services.forEach(service -> allayInstance.logger().info("|   - " + service.name() + " - " + service.hostname() + " - " + service.state().name()));
+            allayInstance.logger().info("│ • " + group.name() + " (" + services.size() + "):");
+
+            final int[] i = {1};
+            services.forEach(service -> {
+                allayInstance.logger().info("│   " + (i[0] == services.size() ? "└" : "├") + " " + service.name() + " » " + service.hostname() + " (" + service.state().name() + ")");
+                i[0]++;
+            });
         });
-        allayInstance.logger().info("");
-        allayInstance.logger().info("| Queue (" + allayInstance.serviceManager().queue().queue().size() + "):");
-        allayInstance.serviceManager().queue().queue().forEach(service -> allayInstance.logger().info("| - " + service.name() + " - " + service.node()));
-        allayInstance.logger().info("");
+        allayInstance.logger().info("│");
+        allayInstance.logger().info("│ Service Queue (" + allayInstance.serviceManager().queue().queue().size() + "):");
+        allayInstance.serviceManager().queue().grouped().forEach((node, groupMap) -> {
+            allayInstance.logger().info("│ • " + node + " (" + groupMap.values().stream().mapToInt(List::size).sum() + "):");
+
+            final int[] i = {1};
+            groupMap.forEach((group, services) -> {
+                allayInstance.logger().info("│   " + (i[0] == groupMap.size() ? "└" : "├") + " " + services.size() + "x " + group);
+                i[0]++;
+            });
+        });
+        allayInstance.logger().info("│");
     }
 
 }

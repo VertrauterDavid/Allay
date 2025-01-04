@@ -40,7 +40,7 @@ public class RunningService {
         allayNode.logger().info("Starting service §a" + service.name() + "§r on §a" + service.hostname() + "§r...");
 
         // normally we would have a delay here because the process is starting - we just simulate it for now
-        allayNode.sleep(500);
+        //allayNode.sleep(500);
 
         // send packet to register the service on all proxies
         allayNode.networkManager().channel().send(new ServicePacket(service, ServicePacket.Action.REGISTER));

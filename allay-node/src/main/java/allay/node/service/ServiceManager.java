@@ -48,17 +48,16 @@ public class ServiceManager {
                     if (service.ip().equalsIgnoreCase("0.0.0.0")) {
                         service.ip(NetworkUtil.getCurrentIp());
                     }
-
                     if (service.port() == 0) {
                         service.port(ServiceUtil.getPort(this, service));
                     }
-
                     service.state(CloudServiceState.STARTING);
 
                     RunningService runningService = new RunningService(allayNode, service);
                     runningService.start();
 
                     services.put(runningService.service().systemId(), runningService);
+                    allayNode.sleep(50); // todo - uhm we had some weird netty errors here - this is a quick fix
                     allayNode.networkManager().channel().send(new ServicePacket(service, action).packetKey(packet.packetKey())); // creating a new packet because the service object is modified
                 }
 

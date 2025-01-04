@@ -24,8 +24,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Accessors(fluent = true)
@@ -55,6 +58,8 @@ public class ServiceQueue {
         if (tempQueue.isEmpty()) return;
 
         CloudService service = tempQueue.peek();
+        service.orderId(ServiceUtil.getOrderId(serviceManager, service.group()));
+
         ServicePacket feedback = (ServicePacket) allayMaster.networkManager().channel(service.node()).sendAndReceive(new ServicePacket(service, ServicePacket.Action.START)).join();
         service.ip(feedback.service().ip());
         service.port(feedback.service().port());
@@ -66,6 +71,23 @@ public class ServiceQueue {
 
     public void add(CloudService service) {
         queue.add(service);
+    }
+
+    /*
+    public Map<String, Map<String, Long>> grouped() {
+        return queue.stream().collect(Collectors.groupingBy(
+                service -> service.group().name(),
+                Collectors.groupingBy(CloudService::node, Collectors.counting())
+        ));
+    }
+     */
+
+    public Map<String, Map<String, List<CloudService>>> grouped() {
+        return queue.stream()
+                .collect(Collectors.groupingBy(
+                        CloudService::node,
+                        Collectors.groupingBy(service -> service.group().name())
+                ));
     }
 
 }

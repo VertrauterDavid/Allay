@@ -16,7 +16,12 @@
 
 package allay.master.service;
 
+import allay.api.service.CloudGroup;
+import allay.api.service.CloudService;
 import lombok.experimental.UtilityClass;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ServiceUtil {
@@ -54,5 +59,20 @@ public class ServiceUtil {
         return channels.isEmpty() ? null : channels.get(new Random().nextInt(channels.size()));
     }
      */
+
+    public static int getOrderId(ServiceManager serviceManager, CloudGroup group) {
+        Set<Integer> usedIds = serviceManager.services()
+                .get(group)
+                .stream()
+                .map(CloudService::orderId)
+                .collect(Collectors.toSet());
+
+        int id = 1;
+        while (usedIds.contains(id)) {
+            id++;
+        }
+
+        return id;
+    }
 
 }

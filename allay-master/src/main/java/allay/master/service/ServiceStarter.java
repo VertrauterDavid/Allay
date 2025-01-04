@@ -56,14 +56,11 @@ public class ServiceStarter {
         });
     }
 
-    public static int TEST_ORDER_ID = 1; // todo - remove - just for testing purposes
-
     private void process(CloudGroup group, String node, long amount) {
         for (long l = 0; l < amount; l++) {
-            int orderId = TEST_ORDER_ID++;
-
+            // order id will be set by the queue
             // ip and port will be set by the node but must be defined for the packet
-            CloudService service = new CloudService(group, CloudServiceState.QUEUE, UUID.randomUUID(), orderId, node, "0.0.0.0", 0);
+            CloudService service = new CloudService(group, CloudServiceState.QUEUE, UUID.randomUUID(), 0, node, "0.0.0.0", 0);
             serviceManager.queue().add(service);
         }
     }
