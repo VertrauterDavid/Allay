@@ -16,6 +16,7 @@
 
 package allay.master.service;
 
+import allay.api.network.channel.NetworkChannel;
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.*;
@@ -78,7 +79,11 @@ public class ServiceManager {
                     // send packet to all proxies
                     services.values().stream().flatMap(Collection::stream).forEach(proxy -> {
                         if (!(proxy.group().version().proxy())) return;
-                        allayMaster.networkManager().channel("service-" + proxy.systemId()).send(packet);
+
+                        NetworkChannel channel = allayMaster.networkManager().channel("service-" + proxy.systemId());
+                        if (channel != null) {
+                            channel.send(packet);
+                        }
                     });
 
                     allayMaster.logger().info("Registered service §a" + service.name() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
