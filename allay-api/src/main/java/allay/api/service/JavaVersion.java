@@ -48,4 +48,9 @@ public enum JavaVersion {
         return new File("storage/java/" + displayName + "/").exists();
     }
 
+    public String command() {
+        if (this == DEFAULT) return "java";
+        return new File(extractedPath + "/bin/java").getAbsolutePath();
+    }
+
 }

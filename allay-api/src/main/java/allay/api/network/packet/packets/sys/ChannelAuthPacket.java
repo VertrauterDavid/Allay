@@ -31,17 +31,20 @@ public class ChannelAuthPacket extends Packet {
 
     private String id;
     private String authToken;
+    private String velocityKey;
 
     @Override
     public void read(PacketBuffer buffer) {
         this.id = buffer.readString();
         this.authToken = buffer.readString();
+        this.velocityKey = buffer.readString();
     }
 
     @Override
     public void write(PacketBuffer buffer) {
         buffer.writeString(this.id);
         buffer.writeString(this.authToken);
+        buffer.writeString(this.velocityKey);
     }
 
 }

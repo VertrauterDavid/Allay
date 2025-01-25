@@ -16,16 +16,19 @@
 
 package allay.node.service;
 
+import allay.api.network.packet.packets.service.ServiceAuthPacket;
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.network.util.NetworkUtil;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
+import allay.api.util.FileUtil;
 import allay.node.AllayNode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.File;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.UUID;
@@ -34,6 +37,8 @@ import java.util.UUID;
 @Accessors(fluent = true)
 @Getter
 public class ServiceManager {
+
+    public static String VELOCITY_SECRET = null;
 
     private final AllayNode allayNode;
     private final HashMap<UUID, RunningService> services = new HashMap<>();
@@ -73,6 +78,14 @@ public class ServiceManager {
             }
         });
 
+        allayNode.networkManager().addListener(ServiceAuthPacket.class, packet -> {
+            RunningService runningService = service(packet.systemId());
+
+            if (runningService != null) {
+                runningService.service().state(CloudServiceState.ONLINE);
+            }
+        });
+
         allayNode.networkManager().addListener(ServiceCommandPacket.class, packet -> {
             service(packet.systemId()).execute(packet.command());
         });
@@ -80,15 +93,12 @@ public class ServiceManager {
 
     public void shutdown() {
         // we sort the services by name - just for the esthetics
-        services.values().stream().sorted(Comparator.comparing(service -> service.service().name())).forEach(service -> service.shutdown(true));
+        services.values().stream().sorted(Comparator.comparing(service -> service.service().displayName())).forEach(service -> service.shutdown(true));
+        FileUtil.delete(allayNode.logger(), new File("dynamic/"));
     }
 
     public RunningService service(UUID systemId) {
         return services.getOrDefault(systemId, null);
-    }
-
-    public RunningService service(String name) {
-        return services.values().stream().filter(service -> service.service().name().equals(name)).findFirst().orElse(null);
     }
 
 }

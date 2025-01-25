@@ -65,7 +65,7 @@ public class ServiceQueue {
         } else {
             service.displayName(service.group().displayName()
                     .replaceAll("%node%", service.node())
-                    .replaceAll("%nodeSplit%", service.node().split("-")[0])
+                    .replaceAll("%nodeSplit%", service.node().split("-")[0].toLowerCase())
                     .replaceAll("%id%", String.format("%02d", service.orderId()))
             );
         }

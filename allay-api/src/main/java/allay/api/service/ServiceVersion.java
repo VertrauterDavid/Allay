@@ -43,7 +43,7 @@ public enum ServiceVersion {
 
      */
 
-    BUNGEECORD_LATEST("Bungeecord", "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar", "stop", true, false, 40500),
+    // BUNGEECORD_LATEST("Bungeecord", "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar", "stop", true, false, 40500),
     VELOCITY_LATEST("Velocity", "-", "shutdown", true, false, 40500),
     GEYSER_LATEST("Geyser", "https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone", "stop", false, true, 40600),
 

@@ -41,8 +41,8 @@ public class ServiceUtil {
     }
 
     private static boolean isPortUsed(ServiceManager serviceManager, int port) {
-        for (RunningService service : serviceManager.services().values()) {
-            if (service.service().port() == port) return true;
+        for (RunningService runningService : serviceManager.services().values()) {
+            if (runningService.service().port() == port) return true;
         }
 
         try (ServerSocket serverSocket = new ServerSocket()) {

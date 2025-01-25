@@ -31,6 +31,7 @@ import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
 import allay.master.AllayMaster;
+import allay.master.service.ServiceManager;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
@@ -79,11 +80,12 @@ public class NetworkHandler extends NetworkHandlerBase {
                 }
                 networkChannel.id(authPacket.id());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
-                networkChannel.send(packet);
+                networkChannel.send(new ChannelAuthPacket(authPacket.id(), manager.authToken(), ServiceManager.VELOCITY_SECRET));
                 allayMaster.logger().info("Successfully authenticated node §a" + (networkChannel.id() != null ? networkChannel.id() : "unknown") + "§r on §a" + networkChannel.hostname());
             }
             return;
         }
+
         if (packet instanceof ServiceAuthPacket authPacket) {
             if (networkChannel.state() == NetworkChannelState.AUTHENTICATION_PENDING) {
                 CloudService service = allayMaster.serviceManager().service(authPacket.systemId());
@@ -112,7 +114,8 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.send(packet);
 
                 service.state(CloudServiceState.ONLINE);
-                allayMaster.logger().info("Successfully authenticated service §a" + service.name() + "§r on §a" + networkChannel.hostname());
+                allayMaster.networkManager().channel(service.node()).send(packet);
+                allayMaster.logger().info("Successfully authenticated service §a" + service.displayName() + "§r on §a" + networkChannel.hostname());
             }
             return;
         }

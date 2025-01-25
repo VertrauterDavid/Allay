@@ -42,7 +42,7 @@ public class InfoCommand extends Command<AllayMaster> {
 
             final int[] i = {1};
             services.forEach(service -> {
-                allayInstance.logger().info("│   " + (i[0] == services.size() ? "└" : "├") + " " + service.name() + " » " + service.hostname() + " (" + service.state().name() + ")");
+                allayInstance.logger().info("│   " + (i[0] == services.size() ? "└" : "├") + " " + service.displayName() + " » " + service.hostname() + " (" + service.state().name() + ")");
                 i[0]++;
             });
         });

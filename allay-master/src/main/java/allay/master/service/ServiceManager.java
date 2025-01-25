@@ -21,6 +21,7 @@ import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.*;
 import allay.api.util.JsonFile;
+import allay.api.util.StringUtil;
 import allay.master.AllayMaster;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -32,6 +33,8 @@ import java.util.concurrent.CompletableFuture;
 @Accessors(fluent = true)
 @Getter
 public class ServiceManager {
+
+    public static String VELOCITY_SECRET = StringUtil.generateRandom(64);
 
     private final AllayMaster allayMaster;
     private final ServiceQueue queue;
@@ -86,7 +89,7 @@ public class ServiceManager {
                         }
                     });
 
-                    allayMaster.logger().info("Registered service §a" + service.name() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
+                    allayMaster.logger().info("Registered service §a" + service.displayName() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
                 }
 
                 case UNREGISTER -> {
@@ -100,7 +103,7 @@ public class ServiceManager {
                         allayMaster.networkManager().channel("service-" + proxy.systemId()).send(packet);
                     });
 
-                    allayMaster.logger().info("Unregistered service §c" + service.name());
+                    allayMaster.logger().info("Unregistered service §c" + service.displayName());
                 }
             }
         });

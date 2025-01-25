@@ -29,11 +29,6 @@ public class CloudService implements Sendable, ChannelAppender {
     private String ip;
     private int port;
 
-    @Deprecated // todo remove everywhere
-    public String name() {
-        return group.name() + "-" + orderId;
-    }
-
     public String hostname() {
         return ip + ":" + port;
     }

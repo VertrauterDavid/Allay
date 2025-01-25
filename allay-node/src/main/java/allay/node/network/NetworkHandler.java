@@ -26,6 +26,7 @@ import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthPacket;
 import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.node.AllayNode;
+import allay.node.service.ServiceManager;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
@@ -48,7 +49,7 @@ public class NetworkHandler extends NetworkHandlerBase {
     @Override
     public void onConnect(NetworkChannel networkChannel) {
         manager.channel(networkChannel);
-        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthPacket(manager.id(), manager.authToken()));
+        networkChannel.nettyChannel().writeAndFlush(new ChannelAuthPacket(manager.id(), manager.authToken(), "-"));
     }
 
     @Override
@@ -67,8 +68,11 @@ public class NetworkHandler extends NetworkHandlerBase {
                 if (!(authPacket.authToken().equals(manager.authToken()))) return;
                 networkChannel.id(authPacket.id());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
+
                 bootFuture.complete(null);
                 allayNode.logger().info("Successfully authenticated with §a" + networkChannel.hostname());
+
+                ServiceManager.VELOCITY_SECRET = authPacket.velocityKey();
             }
             return;
         }
