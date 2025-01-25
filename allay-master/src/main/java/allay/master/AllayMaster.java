@@ -37,6 +37,10 @@ public class AllayMaster extends AllayInstance {
         serviceManager = new ServiceManager(this);
         serviceManager.load();
 
+        logger().info("   §7> successfully booted on port §c" + networkManager.port());
+        logger().info("   §7> successfully loaded §c" + serviceManager.services().size() + " service groups");
+        logger().info("");
+
         commandManager().register(getClass().getPackage().getName() + ".command", AllayMaster.class, this);
         commandManager().sort();
     }
