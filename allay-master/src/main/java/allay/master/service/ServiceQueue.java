@@ -59,11 +59,16 @@ public class ServiceQueue {
 
         CloudService service = tempQueue.peek();
         service.orderId(ServiceUtil.getOrderId(serviceManager, service.group()));
-        service.displayName(service.group().displayName()
-                .replaceAll("%node%", service.node())
-                .replaceAll("%nodeSplit%", service.node().split("-")[0])
-                .replaceAll("%id%", String.format("%02d", service.orderId()))
-        );
+
+        if (service.group().displayName() == null || service.group().displayName().equalsIgnoreCase("default")) {
+            service.displayName(service.group().name() + service.orderId());
+        } else {
+            service.displayName(service.group().displayName()
+                    .replaceAll("%node%", service.node())
+                    .replaceAll("%nodeSplit%", service.node().split("-")[0])
+                    .replaceAll("%id%", String.format("%02d", service.orderId()))
+            );
+        }
 
         ServicePacket feedback = (ServicePacket) allayMaster.networkManager().channel(service.node()).sendAndReceive(new ServicePacket(service, ServicePacket.Action.START)).join();
         service.ip(feedback.service().ip());
