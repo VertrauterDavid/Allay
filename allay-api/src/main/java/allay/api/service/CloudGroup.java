@@ -17,6 +17,7 @@ import java.util.Objects;
 public class CloudGroup implements Sendable {
 
     private String name;
+    private String displayName;
     private long memory;
     private long minInstances;
     private long maxInstances;
@@ -31,6 +32,7 @@ public class CloudGroup implements Sendable {
     @Override
     public void read(PacketBuffer buffer) {
         name = buffer.readString();
+        displayName = buffer.readString();
         memory = buffer.readLong();
         minInstances = buffer.readLong();
         maxInstances = buffer.readLong();
@@ -44,6 +46,7 @@ public class CloudGroup implements Sendable {
     @Override
     public void write(PacketBuffer buffer) {
         buffer.writeString(name);
+        buffer.writeString(displayName);
         buffer.writeLong(memory);
         buffer.writeLong(minInstances);
         buffer.writeLong(maxInstances);
@@ -58,6 +61,7 @@ public class CloudGroup implements Sendable {
     public String toString() {
         return "CloudGroup{" +
                 "name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
                 ", memory=" + memory +
                 ", minInstances=" + minInstances +
                 ", maxInstances=" + maxInstances +

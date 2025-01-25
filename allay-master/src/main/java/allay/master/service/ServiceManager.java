@@ -110,6 +110,7 @@ public class ServiceManager {
 
         CloudGroup group = new CloudGroup(
                 file.getString("name"),
+                file.getString("displayName"),
                 file.getLong("memory"),
                 file.getLong("minInstances"),
                 file.getLong("maxInstances"),
@@ -131,6 +132,7 @@ public class ServiceManager {
         JsonFile file = new JsonFile(new File("storage/groups/" + group.name() + ".json"));
 
         file.setString("name", group.name());
+        file.setString("displayName", group.displayName());
         file.setLong("memory", group.memory());
         file.setLong("minInstances", group.minInstances());
         file.setLong("maxInstances", group.maxInstances());

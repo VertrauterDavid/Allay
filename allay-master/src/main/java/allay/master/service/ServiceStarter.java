@@ -58,9 +58,9 @@ public class ServiceStarter {
 
     private void process(CloudGroup group, String node, long amount) {
         for (long l = 0; l < amount; l++) {
-            // order id will be set by the queue
+            // displayName and order id will be set by the queue
             // ip and port will be set by the node but must be defined for the packet
-            CloudService service = new CloudService(group, CloudServiceState.QUEUE, UUID.randomUUID(), 0, node, "0.0.0.0", 0);
+            CloudService service = new CloudService("-", group, CloudServiceState.QUEUE, UUID.randomUUID(), 0, node, "0.0.0.0", 0);
             serviceManager.queue().add(service);
         }
     }

@@ -17,6 +17,8 @@ import java.util.UUID;
 @Setter
 public class CloudService implements Sendable, ChannelAppender {
 
+    private String displayName;
+
     private CloudGroup group = new CloudGroup();
     private CloudServiceState state;
 
@@ -27,6 +29,7 @@ public class CloudService implements Sendable, ChannelAppender {
     private String ip;
     private int port;
 
+    @Deprecated // todo remove everywhere
     public String name() {
         return group.name() + "-" + orderId;
     }
@@ -37,6 +40,8 @@ public class CloudService implements Sendable, ChannelAppender {
 
     @Override
     public void read(PacketBuffer buffer) {
+        displayName = buffer.readString();
+
         group = new CloudGroup();
         group.read(buffer);
 
@@ -50,6 +55,8 @@ public class CloudService implements Sendable, ChannelAppender {
 
     @Override
     public void write(PacketBuffer buffer) {
+        buffer.writeString(displayName);
+
         group.write(buffer);
 
         buffer.writeEnum(state);
@@ -68,6 +75,7 @@ public class CloudService implements Sendable, ChannelAppender {
     @Override
     public String toString() {
         return "CloudService{" +
+                "displayName='" + displayName + '\'' +
                 "group=" + group +
                 ", state=" + state +
                 ", systemId=" + systemId +
