@@ -9,5 +9,6 @@ allay-plugin/target/
 
 out/
 run/
+build/
 
 todo.md
