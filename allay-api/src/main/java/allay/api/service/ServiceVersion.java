@@ -102,10 +102,10 @@ public enum ServiceVersion {
         if (downloaded() || SystemUtil.isWindows()) return;
         if (!(jarFile.getParentFile().exists() || jarFile.getParentFile().mkdirs())) return;
 
+        String downloadUrl = (this == VELOCITY_LATEST) ? VelocityFetcher.getDownloadUrl() : this.downloadUrl;
         logger.info("Downloading §a" + displayName + " §7from " + downloadUrl.substring(8).split("/")[0] + "...");
 
         try {
-            String downloadUrl = (this == VELOCITY_LATEST) ? VelocityFetcher.getDownloadUrl() : this.downloadUrl;
             FileUtil.wget(logger, jarFile, downloadUrl);
 
             logger.info("Download of §a" + displayName + " §7completed!");

@@ -76,12 +76,13 @@ public class FileUtil {
     public void wget(Logger logger, File file, String url) throws IOException, InterruptedException {
         if (SystemUtil.isWindows()) return;
 
-        ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", "cd " + file.getParentFile().getAbsolutePath() + " && wget --tries=3 --timeout=30 -O " + file.getName() + " " + url);
+        ProcessBuilder processBuilder = new ProcessBuilder("/bin/sh", "-c", "cd " + file.getParentFile().getAbsolutePath() + " && wget --quiet --tries=3 --timeout=30 -O " + file.getName() + " " + url);
         processBuilder.redirectErrorStream(true);
 
         Process process = processBuilder.start();
         if (!process.waitFor(30, TimeUnit.SECONDS)) {
             process.destroy();
+            throw new IOException("wget timed out");
         }
     }
 
