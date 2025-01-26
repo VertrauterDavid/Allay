@@ -193,7 +193,7 @@ public class RunningService {
 
         allayNode.serviceManager().services().remove(service.systemId());
         allayNode.networkManager().channel().sendIfActive(new ServicePacket(service, ServicePacket.Action.UNREGISTER));
-        // allayNode.sleep(200);
+        allayNode.sleep(200);
     }
 
     public void execute(String command) {
