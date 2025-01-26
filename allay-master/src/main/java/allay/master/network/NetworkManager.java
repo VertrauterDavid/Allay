@@ -23,6 +23,7 @@ import allay.api.network.channel.NetworkChannelInitializer;
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketListener;
 import allay.api.network.util.NetworkUtil;
+import allay.api.sftp.SFTPServer;
 import allay.api.util.JsonFile;
 import allay.api.util.StringUtil;
 import allay.master.AllayMaster;
@@ -66,7 +67,12 @@ public class NetworkManager extends NetworkComponent {
         this.host = config.getString("host");
         this.port = (int) config.getLong("port");
 
+        // todo own web server config
         new WebManager(allayMaster, (int) config.getLong("web-port")).boot().join();
+
+        // todo own sftp server config
+        SFTPServer server = new SFTPServer(8041, "admin", "password", "test");
+        server.boot();
     }
 
     @Override

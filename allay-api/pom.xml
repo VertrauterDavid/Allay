@@ -102,6 +102,29 @@
             <version>24.0.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Apache SSHD for SFTP Server -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+
+        <!-- JSch for SFTP Client -->
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+
+        <!-- SLF4J for logging (required by Apache SSHD) -->
+        <!--
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+        -->
     </dependencies>
 
 </project>

@@ -70,6 +70,7 @@ public class NetworkManager extends NetworkComponent {
         this.host = config.getString("host");
         this.port = (int) config.getLong("port");
 
+        // todo own web server config
         new WebManager(allayNode, (int) config.getLong("web-port")).boot().join();
     }
 
