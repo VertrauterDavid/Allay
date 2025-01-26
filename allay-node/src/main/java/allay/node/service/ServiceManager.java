@@ -101,4 +101,8 @@ public class ServiceManager {
         return services.getOrDefault(systemId, null);
     }
 
+    public RunningService service(String input) {
+        return services.values().stream().filter(runningService -> runningService.service().systemId().toString().equals(input) || runningService.service().displayName().equalsIgnoreCase(input) || (runningService.service().group().name() + runningService.service().orderId()).equalsIgnoreCase(input)).findFirst().orElse(null);
+    }
+
 }

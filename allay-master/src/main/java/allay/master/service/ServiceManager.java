@@ -171,4 +171,8 @@ public class ServiceManager {
         return services.values().stream().flatMap(Collection::stream).filter(service -> service.systemId().equals(systemId)).findFirst().orElse(null);
     }
 
+    public CloudService service(String input) {
+        return services.values().stream().flatMap(Collection::stream).filter(service -> service.systemId().toString().equals(input) || service.displayName().equalsIgnoreCase(input) || (service.group().name() + service.orderId()).equalsIgnoreCase(input)).findFirst().orElse(null);
+    }
+
 }
