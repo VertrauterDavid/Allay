@@ -66,9 +66,9 @@ public class FileUtil {
         logger.debug("Deleting '" + name + "'...");
 
         try {
-            new ProcessBuilder("/bin/sh", "-c", "rm -r " + file.getAbsolutePath()).start();
+            new ProcessBuilder("/bin/sh", "-c", "rm -r " + file.getAbsolutePath()).start().waitFor();
             logger.debug("Successfully deleted '" + name + "'!");
-        } catch (IOException exception) {
+        } catch (IOException | InterruptedException exception) {
             logger.debug("Could not delete '" + name + "'!");
         }
     }
