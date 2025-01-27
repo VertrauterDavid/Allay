@@ -23,11 +23,9 @@ import allay.api.network.channel.NetworkChannelInitializer;
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketListener;
 import allay.api.network.util.NetworkUtil;
-import allay.api.sftp.SFTPServer;
 import allay.api.util.JsonFile;
 import allay.api.util.StringUtil;
 import allay.master.AllayMaster;
-import allay.master.web.WebManager;
 import io.netty5.bootstrap.ServerBootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.MultithreadEventLoopGroup;
@@ -60,19 +58,11 @@ public class NetworkManager extends NetworkComponent {
         JsonFile config = new JsonFile(new File("storage/config/netty.json"))
                 .setStringDefault("authToken", StringUtil.generateRandom(32))
                 .setStringDefault("host", "0.0.0.0")
-                .setLongDefault("port", 8040)
-                .setLongDefault("web-port", 8050);
+                .setLongDefault("port", 8040);
 
         this.authToken = config.getString("authToken");
         this.host = config.getString("host");
         this.port = (int) config.getLong("port");
-
-        // todo own web server config
-        new WebManager(allayMaster, (int) config.getLong("web-port")).boot().join();
-
-        // todo own sftp server config
-        SFTPServer server = new SFTPServer(8041, "admin", "password", "test");
-        server.boot();
     }
 
     @Override

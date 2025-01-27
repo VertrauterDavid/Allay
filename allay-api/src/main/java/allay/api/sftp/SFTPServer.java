@@ -40,7 +40,7 @@ public class SFTPServer {
         try {
             sshServer = SshServer.setUpDefaultServer();
             sshServer.setPort(port);
-            sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("hostkey.ser").toPath()));
+            sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("storage/config/hostkey.ser").toPath()));
 
             sshServer.setPasswordAuthenticator((user, pass, session) -> user.equals(username) && pass.equals(password));
             sshServer.setFileSystemFactory(new VirtualFileSystemFactory(new File(baseDir).toPath()));

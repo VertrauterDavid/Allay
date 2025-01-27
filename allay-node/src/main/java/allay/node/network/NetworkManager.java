@@ -25,7 +25,6 @@ import allay.api.network.packet.PacketListener;
 import allay.api.network.util.NetworkUtil;
 import allay.api.util.JsonFile;
 import allay.node.AllayNode;
-import allay.node.web.WebManager;
 import io.netty5.bootstrap.Bootstrap;
 import io.netty5.channel.ChannelOption;
 import io.netty5.channel.MultithreadEventLoopGroup;
@@ -62,16 +61,12 @@ public class NetworkManager extends NetworkComponent {
                 .setStringDefault("id", "Node-" + UUID.randomUUID().toString().split("-")[0])
                 .setStringDefault("authToken", "put-master-auth-token-here")
                 .setStringDefault("host", "0.0.0.0")
-                .setLongDefault("port", 8040)
-                .setLongDefault("web-port", 8050);
+                .setLongDefault("port", 8040);
 
         this.id = config.getString("id");
         this.authToken = config.getString("authToken");
         this.host = config.getString("host");
         this.port = (int) config.getLong("port");
-
-        // todo own web server config
-        new WebManager(allayNode, (int) config.getLong("web-port")).boot().join();
     }
 
     @Override

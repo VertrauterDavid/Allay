@@ -19,6 +19,7 @@ package allay.master;
 import allay.api.AllayInstance;
 import allay.master.network.NetworkManager;
 import allay.master.service.ServiceManager;
+import allay.master.web.WebManager;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -28,18 +29,25 @@ public class AllayMaster extends AllayInstance {
 
     private NetworkManager networkManager;
     private ServiceManager serviceManager;
+    private WebManager webManager;
 
     @Override
     public void onStartup() {
         networkManager = new NetworkManager(this);
         networkManager.bootSync();
+        logger().info("   §7> successfully booted netty server on port §c" + networkManager.port());
+
+        webManager = new WebManager(this);
+        webManager.boot().join();
+        logger().info("   §7> successfully booted web server on port §c" + webManager.port());
 
         serviceManager = new ServiceManager(this);
         serviceManager.load();
-
-        logger().info("   §7> successfully booted on port §c" + networkManager.port());
         logger().info("   §7> successfully loaded §c" + serviceManager.services().size() + " service groups");
         logger().info("");
+
+        // SFTPServer server = new SFTPServer(8041, "admin", "password", "test");
+        // server.boot();
 
         commandManager().register(getClass().getPackage().getName() + ".command", AllayMaster.class, this);
         commandManager().sort();

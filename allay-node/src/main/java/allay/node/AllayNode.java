@@ -22,6 +22,7 @@ import allay.api.network.packet.packets.sys.NodeStatusPacket;
 import allay.node.network.NetworkManager;
 import allay.node.service.ServiceManager;
 import allay.node.util.DownloadUtil;
+import allay.node.web.WebManager;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -35,6 +36,7 @@ public class AllayNode extends AllayInstance {
 
     private NetworkManager networkManager;
     private ServiceManager serviceManager;
+    private WebManager webManager;
 
     @Override
     public void onStartup() {
@@ -43,9 +45,16 @@ public class AllayNode extends AllayInstance {
 
         networkManager = new NetworkManager(this);
         networkManager.bootSync();
+        logger().info("   §7> successfully connected to master on port §c" + networkManager.port());
+
+        webManager = new WebManager(this);
+        webManager.boot().join();
+        logger().info("   §7> successfully booted web server on port §c" + webManager.port());
 
         serviceManager = new ServiceManager(this);
         serviceManager.load();
+        logger().info("   §7> successfully loaded service manager");
+        logger().info("");
 
         commandManager().register(getClass().getPackage().getName() + ".command", AllayNode.class, this);
         commandManager().sort();

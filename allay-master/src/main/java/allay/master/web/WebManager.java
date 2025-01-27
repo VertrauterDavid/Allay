@@ -16,18 +16,31 @@
 
 package allay.master.web;
 
+import allay.api.util.JsonFile;
 import allay.master.AllayMaster;
 import allay.master.web.test.*;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import spark.Spark;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
-@RequiredArgsConstructor
+@Accessors(fluent = true)
+@Getter
 public class WebManager {
 
     private final AllayMaster allayMaster;
     private final int port;
+
+    public WebManager(AllayMaster allayMaster) {
+        this.allayMaster = allayMaster;
+
+        JsonFile config = new JsonFile(new File("storage/config/web.json"))
+                .setLongDefault("web-port", 8050);
+
+        this.port = (int) config.getLong("web-port");
+    }
 
     public CompletableFuture<Void> boot() {
         return CompletableFuture.runAsync(() -> {

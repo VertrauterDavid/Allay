@@ -70,7 +70,8 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
 
                 bootFuture.complete(null);
-                allayNode.logger().info("Successfully authenticated with §a" + networkChannel.hostname());
+                // removed because we log this in the main class
+                // allayNode.logger().info("Successfully authenticated with §a" + networkChannel.hostname());
 
                 ServiceManager.VELOCITY_SECRET = authPacket.velocityKey();
             }
