@@ -17,8 +17,8 @@
 package allay.plugin.proxy.velo;
 
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.lifecycle.ProxyInitializeEvent;
-import com.velocitypowered.api.event.lifecycle.ProxyShutdownEvent;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 
@@ -35,7 +35,7 @@ public class AllayVelo {
 
     @Inject
     public AllayVelo(ProxyServer server) {
-        impl = new AllayVeloImpl(server);
+        impl = new AllayVeloImpl(this, server);
     }
 
     @Subscribe

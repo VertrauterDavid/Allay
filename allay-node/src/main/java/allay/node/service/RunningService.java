@@ -16,6 +16,8 @@
 
 package allay.node.service;
 
+import allay.api.network.packet.packets.RedirectToServicePacket;
+import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.CloudService;
 import allay.api.service.CloudServiceState;
@@ -34,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,7 +51,6 @@ public class RunningService {
 
     private File directory;
     private Process process = null;
-    private OutputStream outputStream = null;
     private AtomicReference<String> output = null;
 
     public void start() {
@@ -100,7 +100,6 @@ public class RunningService {
             }
 
             process = processBuilder.start();
-            outputStream = process.getOutputStream();
 
             OutputThread outputThread = new OutputThread(this);
             outputThread.setName("ServiceOutputThread-" + service.systemId());
@@ -147,7 +146,6 @@ public class RunningService {
         if (process != null) {
             process.destroy();
             process = null;
-            outputStream = null;
         }
 
         if (!(service.group().staticGroup())) {
@@ -160,13 +158,18 @@ public class RunningService {
     }
 
     public void execute(String command) {
+        /* Had some errors here after server reload
         if (process == null) return;
-        if (outputStream == null) return;
+        if (process.getOutputStream() == null) return;
 
         try {
-            outputStream.write((command + "\n").getBytes());
-            outputStream.flush();
-        } catch (Exception ignored) { }
+            process.getOutputStream().write((command + "\n").getBytes());
+            process.getOutputStream().flush();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+         */
+        allayNode.networkManager().channel().sendIfActive(new RedirectToServicePacket(service.systemId(), new ServiceCommandPacket(command)));
     }
 
     public void check() {

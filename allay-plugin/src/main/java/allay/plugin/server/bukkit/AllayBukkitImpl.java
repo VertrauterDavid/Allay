@@ -17,6 +17,18 @@
 package allay.plugin.server.bukkit;
 
 import allay.plugin.ServiceInstance;
+import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 
-public class AllayBukkitImpl extends ServiceInstance {
+@RequiredArgsConstructor
+public class AllayBukkitImpl extends ServiceInstance implements Listener {
+
+    private final AllayBukkit instance;
+
+    @Override
+    public void execute(String command) {
+        Bukkit.getScheduler().runTask(instance, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+    }
+
 }

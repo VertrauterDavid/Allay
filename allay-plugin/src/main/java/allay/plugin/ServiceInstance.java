@@ -17,6 +17,7 @@
 package allay.plugin;
 
 import allay.api.AllayApi;
+import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.plugin.network.NetworkConfig;
 import allay.plugin.network.NetworkManager;
 
@@ -24,13 +25,12 @@ import java.util.UUID;
 
 public abstract class ServiceInstance {
 
-    private NetworkConfig networkConfig;
     private NetworkManager networkManager;
 
     public void enable() {
         AllayApi.instance(new AllayApi());
 
-        networkConfig = new NetworkConfig(
+        NetworkConfig networkConfig = new NetworkConfig(
                 UUID.fromString(System.getenv("ALLAY_SERVICE_ID")),
                 System.getenv("ALLAY_NETWORK_AUTH_TOKEN"),
                 System.getenv("ALLAY_NETWORK_HOST"),
@@ -38,10 +38,14 @@ public abstract class ServiceInstance {
         );
         networkManager = new NetworkManager(networkConfig);
         networkManager.bootSync();
+
+        networkManager.addListener(ServiceCommandPacket.class, packet -> execute(packet.command()));
     }
 
     public void disable() {
         networkManager.shutdownSync();
     }
+
+    public abstract void execute(String command);
 
 }

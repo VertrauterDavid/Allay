@@ -195,7 +195,7 @@ public class ServiceManager {
     }
 
     public CompletableFuture<Void> execute(CloudService service, String command) {
-        return CompletableFuture.runAsync(() -> allayMaster.networkManager().channel(service.node()).send(new ServiceCommandPacket()));
+        return CompletableFuture.runAsync(() -> allayMaster.networkManager().channel("service-" + service.node()).send(new ServiceCommandPacket(command)));
     }
 
     public CloudService service(UUID systemId) {

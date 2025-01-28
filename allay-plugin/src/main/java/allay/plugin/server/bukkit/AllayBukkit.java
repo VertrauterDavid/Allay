@@ -24,7 +24,7 @@ public class AllayBukkit extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        impl = new AllayBukkitImpl();
+        impl = new AllayBukkitImpl(this);
         impl.enable();
     }
 

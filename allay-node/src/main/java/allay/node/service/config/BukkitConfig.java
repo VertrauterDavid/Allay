@@ -34,7 +34,7 @@ public class BukkitConfig {
 
         properties.setProperty("online-mode", "false");
         properties.setProperty("server-port", String.valueOf(runningService.service().port()));
-        properties.setProperty("server-ip", "0.0.0.0");
+        // properties.setProperty("server-ip", "0.0.0.0");
         properties.setProperty("server-name", runningService.service().displayName());
         properties.setProperty("motd", runningService.service().displayName());
         properties.setProperty("enforce-secure-profile", "false");

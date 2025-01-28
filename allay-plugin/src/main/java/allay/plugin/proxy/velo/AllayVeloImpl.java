@@ -18,11 +18,9 @@ package allay.plugin.proxy.velo;
 
 import allay.plugin.proxy.ProxyInstance;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.connection.Player;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.TitlePart;
 import net.kyori.adventure.util.Ticks;
 
 import java.util.UUID;
@@ -30,32 +28,32 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AllayVeloImpl extends ProxyInstance {
 
+    private final AllayVelo instance;
     private final ProxyServer server;
 
     @Override
+    public void execute(String command) {
+        server.getCommandManager().executeAsync(server.getConsoleCommandSource(), command);
+    }
+
+    @Override
     public void message(UUID uuid, String message) {
-        player(uuid).sendMessage(Component.text(message));
+        server.getPlayer(uuid).ifPresent(player -> player.sendMessage(Component.text(message)));
     }
 
     @Override
     public void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut) {
-        player(uuid).sendTitlePart(TitlePart.TITLE, Component.text(title));
-        player(uuid).sendTitlePart(TitlePart.SUBTITLE, Component.text(subTitle));
-        player(uuid).sendTitlePart(TitlePart.TIMES, Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut)));
+        server.getPlayer(uuid).ifPresent(player -> player.showTitle(Title.title(Component.text(title), Component.text(subTitle), Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut)))));
     }
 
     @Override
     public void actionbar(UUID uuid, String message) {
-        player(uuid).sendActionBar(Component.text(message));
+        server.getPlayer(uuid).ifPresent(player -> player.sendActionBar(Component.text(message)));
     }
 
     @Override
     public void connect(UUID uuid, String serviceName) {
-        player(uuid).createConnectionRequest(server.server(serviceName)).fireAndForget();
-    }
-
-    private Player player(UUID uuid) {
-        return server.player(uuid);
+        server.getServer(serviceName).ifPresent(registeredServer -> server.getPlayer(uuid).ifPresent(player -> player.createConnectionRequest(registeredServer).connect()));
     }
 
 }

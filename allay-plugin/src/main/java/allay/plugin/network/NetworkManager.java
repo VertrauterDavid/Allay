@@ -33,6 +33,9 @@ import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
@@ -81,6 +84,14 @@ public class NetworkManager extends NetworkComponent {
         });
 
         return future;
+    }
+
+    @Override
+    public void shutdownSync() {
+        // todo - implement networkManager.shutdownSync() - atm it's throwing useless TimeoutExceptions
+        try {
+            shutdown().get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ignored) { }
     }
 
     public <P extends Packet> void addListener(Class<P> clazz, Consumer<P> listener) {

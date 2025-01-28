@@ -23,26 +23,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
 public class ServiceCommandPacket extends Packet {
 
-    private UUID systemId;
     private String command;
 
     @Override
     public void read(PacketBuffer buffer) {
-        systemId = buffer.readUniqueId();
         command = buffer.readString();
     }
 
     @Override
     public void write(PacketBuffer buffer) {
-        buffer.writeUniqueId(systemId);
         buffer.writeString(command);
     }
 

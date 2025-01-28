@@ -27,8 +27,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AllayBungeeImpl extends ProxyInstance {
 
-    private final AllayBungee plugin;
-    
+    private final AllayBungee instance;
+
+    @Override
+    public void execute(String command) {
+        instance.getProxy().getPluginManager().dispatchCommand(instance.getProxy().getConsole(), command);
+    }
+
     @Override
     public void message(UUID uuid, String message) {
         player(uuid).sendMessage(new TextComponent(message));
@@ -36,7 +41,7 @@ public class AllayBungeeImpl extends ProxyInstance {
 
     @Override
     public void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut) {
-        player(uuid).sendTitle(plugin.getProxy().createTitle().title(new TextComponent(title)).subTitle(new TextComponent(subTitle)).stay(stay).fadeIn(fadeIn).fadeOut(fadeOut));
+        player(uuid).sendTitle(instance.getProxy().createTitle().title(new TextComponent(title)).subTitle(new TextComponent(subTitle)).stay(stay).fadeIn(fadeIn).fadeOut(fadeOut));
     }
 
     @Override
@@ -46,11 +51,11 @@ public class AllayBungeeImpl extends ProxyInstance {
 
     @Override
     public void connect(UUID uuid, String serviceName) {
-        player(uuid).connect(plugin.getProxy().getServerInfo(serviceName));
+        player(uuid).connect(instance.getProxy().getServerInfo(serviceName));
     }
 
     public ProxiedPlayer player(UUID uuid) {
-        return plugin.getProxy().getPlayer(uuid);
+        return instance.getProxy().getPlayer(uuid);
     }
 
 }
