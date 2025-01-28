@@ -25,6 +25,7 @@ import allay.api.network.packet.packets.BroadcastPacket;
 import allay.api.network.packet.packets.RedirectToNodePacket;
 import allay.api.network.packet.packets.RedirectToServicePacket;
 import allay.api.network.packet.packets.service.ServiceAuthPacket;
+import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.network.packet.packets.sys.ChannelAuthFailedPacket;
 import allay.api.network.packet.packets.sys.ChannelAuthPacket;
 import allay.api.network.packet.packets.sys.NodeStatusPacket;
@@ -35,6 +36,7 @@ import allay.master.service.ServiceManager;
 import io.netty5.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
@@ -112,6 +114,27 @@ public class NetworkHandler extends NetworkHandlerBase {
                 networkChannel.id("service-" + authPacket.systemId());
                 networkChannel.state(NetworkChannelState.AUTHENTICATION_DONE);
                 networkChannel.send(packet);
+
+                if (service.group().version().proxy()) {
+                    allayMaster.serviceManager().services().values().stream().flatMap(Collection::stream).forEach(otherService -> {
+                        if (otherService.group().version().proxy()) return;
+                        if (otherService.state() != CloudServiceState.ONLINE) return;
+
+                        NetworkChannel channel = allayMaster.networkManager().channel("service-" + service.systemId());
+                        if (channel != null) {
+                            channel.send(new ServicePacket(otherService, ServicePacket.Action.REGISTER));
+                        }
+                    });
+                } else {
+                    allayMaster.serviceManager().services().values().stream().flatMap(Collection::stream).forEach(otherService -> {
+                        if (!(otherService.group().version().proxy())) return;
+
+                        NetworkChannel channel = allayMaster.networkManager().channel("service-" + otherService.systemId());
+                        if (channel != null) {
+                            channel.send(new ServicePacket(service, ServicePacket.Action.REGISTER));
+                        }
+                    });
+                }
 
                 service.state(CloudServiceState.ONLINE);
                 allayMaster.networkManager().channel(service.node()).send(packet);

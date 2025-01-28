@@ -18,42 +18,29 @@ package allay.api.network.packet.packets.service;
 
 import allay.api.network.packet.Packet;
 import allay.api.network.packet.PacketBuffer;
-import allay.api.service.CloudService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(fluent = true)
 @Getter
-public class ServicePacket extends Packet {
+public class ServiceDisablePacket extends Packet {
 
-    private CloudService service;
-    private Action action;
+    private UUID systemId;
 
     @Override
     public void read(PacketBuffer buffer) {
-        service = new CloudService();
-        service.read(buffer);
-        action = buffer.readEnum(Action.class);
+        this.systemId = buffer.readUniqueId();
     }
 
     @Override
     public void write(PacketBuffer buffer) {
-        service.write(buffer);
-        buffer.writeEnum(action);
-    }
-
-    public enum Action {
-        START,
-        STOP,
-        KILL,
-        UPDATE, // todo - needed???
-        REGISTER,
-        UNREGISTER,
-        DISABLE
+        buffer.writeUniqueId(this.systemId);
     }
 
 }

@@ -40,10 +40,12 @@ public abstract class ProxyInstance extends ServiceInstance {
             switch (action) {
                 case REGISTER -> {
                     registerServer(service);
+                    System.out.println("Registered server: " + service.displayName());
                 }
 
                 case UNREGISTER -> {
                     unregisterServer(service);
+                    System.out.println("Unregistered server: " + service.displayName());
                 }
             }
         });

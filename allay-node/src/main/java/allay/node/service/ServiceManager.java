@@ -17,6 +17,7 @@
 package allay.node.service;
 
 import allay.api.network.packet.packets.service.ServiceAuthPacket;
+import allay.api.network.packet.packets.service.ServiceDisablePacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.network.util.NetworkUtil;
 import allay.api.service.CloudService;
@@ -83,6 +84,13 @@ public class ServiceManager {
             if (runningService != null) {
                 runningService.service().state(CloudServiceState.ONLINE);
             }
+        });
+
+        allayNode.networkManager().addListener(ServiceDisablePacket.class, packet -> {
+            RunningService runningService = service(packet.systemId());
+            if (runningService == null) return;
+
+            runningService.shutdown(true);
         });
     }
 

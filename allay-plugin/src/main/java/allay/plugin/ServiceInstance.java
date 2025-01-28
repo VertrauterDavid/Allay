@@ -18,6 +18,7 @@ package allay.plugin;
 
 import allay.api.AllayApi;
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
+import allay.api.network.packet.packets.service.ServiceDisablePacket;
 import allay.plugin.network.NetworkConfig;
 import allay.plugin.network.NetworkManager;
 
@@ -43,6 +44,7 @@ public abstract class ServiceInstance {
     }
 
     public void disable() {
+        networkManager.channel().send(new ServiceDisablePacket(UUID.fromString(System.getenv("ALLAY_SERVICE_ID"))));
         networkManager.shutdownSync();
     }
 

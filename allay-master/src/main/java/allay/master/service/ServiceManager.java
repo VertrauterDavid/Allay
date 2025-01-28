@@ -18,6 +18,7 @@ package allay.master.service;
 
 import allay.api.network.channel.NetworkChannel;
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
+import allay.api.network.packet.packets.service.ServiceDisablePacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.*;
 import allay.api.util.JsonFile;
@@ -131,16 +132,20 @@ public class ServiceManager {
                 }
 
                 case REGISTER -> {
-                    // send packet to all proxies
-                    services.values().stream().flatMap(Collection::stream).forEach(proxy -> {
-                        if (!(proxy.group().version().proxy())) return;
+                    /*
+                    if (!(service.group().version().proxy())) {
+                        services.values().stream().flatMap(Collection::stream).forEach(proxy -> {
+                            if (!(proxy.group().version().proxy())) return;
 
-                        NetworkChannel channel = allayMaster.networkManager().channel("service-" + proxy.systemId());
-                        if (channel != null) {
-                            channel.send(packet);
-                        }
-                    });
+                            NetworkChannel channel = allayMaster.networkManager().channel("service-" + proxy.systemId());
+                            if (channel != null) {
+                                channel.send(packet);
+                            }
+                        });
+                    }
+                     */
 
+                    // todo remove?
                     allayMaster.logger().info("Registered service §a" + service.displayName() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
                 }
 
@@ -150,14 +155,27 @@ public class ServiceManager {
                     services.get(service.group()).remove(service);
 
                     // send packet to all proxies
+                    /*
                     services.values().stream().flatMap(Collection::stream).forEach(proxy -> {
                         if (!(proxy.group().version().proxy())) return;
                         allayMaster.networkManager().channel("service-" + proxy.systemId()).send(packet);
                     });
+                     */
 
                     allayMaster.logger().info("Unregistered service §c" + service.displayName());
                 }
             }
+        });
+
+        allayMaster.networkManager().addListener(ServiceDisablePacket.class, packet -> {
+            CloudService service = service(packet.systemId());
+            if (service == null) return;
+
+            service.state(CloudServiceState.STOPPING);
+            services.get(service.group()).remove(service);
+
+            allayMaster.networkManager().channels().forEach(channel -> channel.send(packet));
+            allayMaster.logger().info("Unregistered service §c" + service.displayName());
         });
     }
 
