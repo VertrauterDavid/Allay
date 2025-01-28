@@ -30,12 +30,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
@@ -76,80 +77,24 @@ public class RunningService {
             FileUtil.copyFiles(new File("templates/" + service.group().name().toUpperCase() + "/"), directory.getPath());
             service.group().templates().forEach(template -> FileUtil.copyFiles(new File("templates/" + template + "/"), directory.getPath()));
 
-            ArrayList<String> commands;
-
             if (service.group().version() == ServiceVersion.VELOCITY_LATEST) {
                 VeloConfig.setup1(this);
                 VeloConfig.setup2(this);
-
-                commands = new ArrayList<>(Arrays.asList(
-                        service.group().javaVersion().command(),
-                        "-Dservice-name=" + service.displayName(),
-                        "-Xmx" + service.group().memory() + "M",
-                        "-XX:+UseG1GC",
-                        "-XX:G1HeapRegionSize=4M",
-                        "-XX:+UnlockExperimentalVMOptions",
-                        "-XX:+ParallelRefProcEnabled",
-                        "-XX:+AlwaysPreTouch",
-                        "-XX:MaxInlineLevel=15",
-                        "-jar", service.group().version().jarFile().getName(),
-                        "-p" + service.port()
-                ));
             } else {
                 BukkitConfig.setup1(this);
                 BukkitConfig.setup2(this);
                 BukkitConfig.setupPaperVelo(this);
-
-                commands = new ArrayList<>(Arrays.asList(
-                        service.group().javaVersion().command(),
-                        "-Dservice-name=" + service.displayName(),
-                        "-Dcom.mojang.eula.agree=true",
-                        "-XX:+UseG1GC",
-                        "-XX:+ParallelRefProcEnabled",
-                        "-XX:MaxGCPauseMillis=200",
-                        "-XX:+UnlockExperimentalVMOptions",
-                        "-XX:+DisableExplicitGC",
-                        "-XX:+AlwaysPreTouch",
-                        "-XX:G1NewSizePercent=30",
-                        "-XX:G1MaxNewSizePercent=40",
-                        "-XX:G1HeapRegionSize=8M",
-                        "-XX:G1ReservePercent=20",
-                        "-XX:G1HeapWastePercent=5",
-                        "-XX:G1MixedGCCountTarget=4",
-                        "-XX:InitiatingHeapOccupancyPercent=15",
-                        "-XX:G1MixedGCLiveThresholdPercent=90",
-                        "-XX:G1RSetUpdatingPauseTimePercent=5",
-                        "-XX:SurvivorRatio=32",
-                        "-XX:+PerfDisableSharedMem",
-                        "-XX:MaxTenuringThreshold=1",
-                        "-Dusing.aikars.flags=https://mcflags.emc.gs",
-                        "-Daikars.new.flags=true",
-                        "-XX:-UseAdaptiveSizePolicy",
-                        "-XX:CompileThreshold=100",
-                        "-Dio.netty.recycler.maxCapacity=0",
-                        "-Dio.netty.recycler.maxCapacity.default=0",
-                        "-Djline.terminal=jline.UnsupportedTerminal",
-                        "-Dfile.encoding=UTF-8",
-                        "-Dclient.encoding.override=UTF-8",
-                        "-DIReallyKnowWhatIAmDoingISwear=true",
-                        "-Xmx" + service.group().memory() + "M",
-                        "-jar", service.group().version().jarFile().getName(),
-                        "-p" + service.port(),
-                        "-h0.0.0.0"
-                ));
             }
 
-            // idk why, but we had it in midgard...
-            // allayNode.sleep(500);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(commands);
-            processBuilder.directory(directory);
+            ProcessBuilder processBuilder = getProcessBuilder();
             // processBuilder.inheritIO();
 
+            processBuilder.environment().put("ALLAY_SERVICE_NAME", service.displayName());
             processBuilder.environment().put("ALLAY_NETWORK_SYSTEM_ID", allayNode.networkManager().id());
             processBuilder.environment().put("ALLAY_NETWORK_AUTH_TOKEN", allayNode.networkManager().authToken());
             processBuilder.environment().put("ALLAY_NETWORK_HOST", allayNode.networkManager().host());
             processBuilder.environment().put("ALLAY_NETWORK_PORT", String.valueOf(allayNode.networkManager().port()));
+            service.group().environment().forEach(processBuilder.environment()::put);
             if (service.group().version() == ServiceVersion.VELOCITY_LATEST) {
                 processBuilder.environment().put("REDISBUNGEE_PROXY_ID", service.displayName());
             }
@@ -171,8 +116,26 @@ public class RunningService {
         }
     }
 
+    private @NotNull ProcessBuilder getProcessBuilder() {
+        List<String> commands = Arrays.asList(service.group().startupCommand().split(" "));
+        commands.replaceAll(command -> command
+                .replaceAll("%java%", service.group().javaVersion().command())
+                .replaceAll("%jarFile%", service.group().version().jarFile().getName())
+                .replaceAll("%memory%", String.valueOf(service.group().memory()))
+                .replaceAll("%port%", String.valueOf(service.port()))
+        );
+
+        // idk why, but we had it in midgard...
+        allayNode.sleep(500);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.directory(directory);
+        return processBuilder;
+    }
+
     public void shutdown(boolean force) {
-        if (!(force)) {
+        if (!(force) && service.state() != CloudServiceState.STOPPING) {
+            service.state(CloudServiceState.STOPPING);
             allayNode.logger().info("Stopping service §c" + service.displayName() + "§r...");
             execute(service.group().version().shutdownCommand());
             return;

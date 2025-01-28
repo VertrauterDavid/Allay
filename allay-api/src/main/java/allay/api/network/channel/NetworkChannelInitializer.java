@@ -22,6 +22,8 @@ import allay.api.network.codec.PacketDecoder;
 import allay.api.network.codec.PacketEncoder;
 import io.netty5.channel.Channel;
 import io.netty5.channel.ChannelInitializer;
+import io.netty5.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty5.handler.codec.LengthFieldPrepender;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +37,9 @@ public class NetworkChannelInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         channel.pipeline()
+                .addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, Integer.BYTES, 0, Integer.BYTES))
                 .addLast(new PacketDecoder(logger))
+                .addLast(new LengthFieldPrepender(Integer.BYTES))
                 .addLast(new PacketEncoder(logger))
                 .addLast(networkHandler);
     }

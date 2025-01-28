@@ -52,15 +52,67 @@ public class ServiceManager {
     }
 
     public void load() {
+        loadStartup();
+        loadGroups();
+        addListener();
+    }
+
+    private void loadStartup() {
+        File groups = new File("storage/groups/startup");
+        if (!(groups.exists()) && !(groups.mkdirs())) return;
+
+        ServiceUtil.defaultStartup();
+    }
+
+    private void loadGroups() {
         File groups = new File("storage/groups");
-        if (!(groups.exists())) groups.mkdirs();
+        if (!(groups.exists()) && !(groups.mkdirs())) return;
 
         Arrays.stream(Objects.requireNonNull(groups.listFiles())).forEach(file -> {
             if (file.getName().endsWith(".json")) {
                 load(file.getName().replace(".json", ""));
             }
         });
+    }
 
+    private void load(String name) {
+        if (name == null || name.contains(" ")) throw new IllegalArgumentException("Invalid group name");
+        if (!(new File("storage/groups/" + name + ".json").exists())) throw new IllegalArgumentException("Group not found");
+
+        JsonFile file = new JsonFile(new File("storage/groups/" + name + ".json"));
+        if (!(name.equals(file.getString("name")))) throw new IllegalArgumentException("Group name in file does not match with the file name");
+
+        String startupFileName = file.getString("startupFile");
+        File startupFile = new File("storage/groups/startup/" + startupFileName);
+
+        String startupCommand;
+        if (startupFile.exists()) {
+            startupCommand = new JsonFile(startupFile).getString("command");
+        } else {
+            startupCommand = new JsonFile(new File("storage/groups/startup/default.json")).getString("command");
+        }
+
+        CloudGroup group = new CloudGroup(
+                file.getString("name"),
+                file.getString("displayName"),
+                file.getLong("memory"),
+                file.getLong("minInstances"),
+                file.getLong("maxInstances"),
+                file.getBoolean("staticGroup"),
+                ServiceVersion.valueOf(file.getString("version")),
+                JavaVersion.valueOf(file.getString("javaVersion")),
+                file.getMap("nodes", String.class, Long.class),
+                file.getList("templates", String.class),
+                startupFileName,
+                startupCommand,
+                file.getMap("environment", String.class, String.class)
+        );
+        group.environment().forEach((key, value) -> System.out.println("Key: " + key + " Value: " + value));
+
+        services.put(group, new ArrayList<>());
+    }
+
+    private void addListener() {
         allayMaster.networkManager().addListener(ServicePacket.class, packet -> {
             CloudService service = packet.service();
             ServicePacket.Action action = packet.action();
@@ -109,29 +161,6 @@ public class ServiceManager {
         });
     }
 
-    public void load(String name) {
-        if (name == null || name.contains(" ")) throw new IllegalArgumentException("Invalid group name");
-        if (!(new File("storage/groups/" + name + ".json").exists())) throw new IllegalArgumentException("Group not found");
-
-        JsonFile file = new JsonFile(new File("storage/groups/" + name + ".json"));
-        if (!(name.equals(file.getString("name")))) throw new IllegalArgumentException("Group name in file does not match with the file name");
-
-        CloudGroup group = new CloudGroup(
-                file.getString("name"),
-                file.getString("displayName"),
-                file.getLong("memory"),
-                file.getLong("minInstances"),
-                file.getLong("maxInstances"),
-                file.getBoolean("staticGroup"),
-                ServiceVersion.valueOf(file.getString("version")),
-                JavaVersion.valueOf(file.getString("javaVersion")),
-                file.getMap("nodes", String.class, Long.class),
-                file.getList("templates", String.class)
-        );
-
-        services.put(group, new ArrayList<>());
-    }
-
     public void save() {
         services.keySet().forEach(this::save);
     }
@@ -149,6 +178,8 @@ public class ServiceManager {
         file.setString("javaVersion", group.javaVersion().name());
         file.setMap("nodes", group.nodes());
         file.setList("templates", group.templates());
+        file.setString("startupFile", group.startupFile());
+        file.setMap("environment", group.environment());
     }
 
     /*

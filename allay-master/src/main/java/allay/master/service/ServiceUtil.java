@@ -18,8 +18,11 @@ package allay.master.service;
 
 import allay.api.service.CloudGroup;
 import allay.api.service.CloudService;
+import allay.api.util.JsonFile;
 import lombok.experimental.UtilityClass;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,5 +77,127 @@ public class ServiceUtil {
 
         return id;
     }
+
+    public static void defaultStartup() {
+        new JsonFile(new File("storage/groups/startup/default.json")).setStringDefault("command", String.join(" ", Arrays.asList(
+                "%java%",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%",
+                "-h0.0.0.0"
+        )));
+
+        new JsonFile(new File("storage/groups/startup/bukkit.json")).setStringDefault("command", String.join(" ", Arrays.asList(
+                "%java%",
+                "-Dcom.mojang.eula.agree=true",
+                "-XX:+UseG1GC",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:MaxGCPauseMillis=200",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+DisableExplicitGC",
+                "-XX:+AlwaysPreTouch",
+                "-XX:G1NewSizePercent=30",
+                "-XX:G1MaxNewSizePercent=40",
+                "-XX:G1HeapRegionSize=8M",
+                "-XX:G1ReservePercent=20",
+                "-XX:G1HeapWastePercent=5",
+                "-XX:G1MixedGCCountTarget=4",
+                "-XX:InitiatingHeapOccupancyPercent=15",
+                "-XX:G1MixedGCLiveThresholdPercent=90",
+                "-XX:G1RSetUpdatingPauseTimePercent=5",
+                "-XX:SurvivorRatio=32",
+                "-XX:+PerfDisableSharedMem",
+                "-XX:MaxTenuringThreshold=1",
+                "-Dusing.aikars.flags=https://mcflags.emc.gs",
+                "-Daikars.new.flags=true",
+                "-XX:-UseAdaptiveSizePolicy",
+                "-XX:CompileThreshold=100",
+                "-Dio.netty.recycler.maxCapacity=0",
+                "-Dio.netty.recycler.maxCapacity.default=0",
+                "-Djline.terminal=jline.UnsupportedTerminal",
+                "-Dfile.encoding=UTF-8",
+                "-Dclient.encoding.override=UTF-8",
+                "-DIReallyKnowWhatIAmDoingISwear=true",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%",
+                "-h0.0.0.0"
+        )));
+
+        new JsonFile(new File("storage/groups/startup/velocity.json")).setStringDefault("command", String.join(" ", Arrays.asList(
+                "%java%",
+                "-XX:+UseG1GC",
+                "-XX:G1HeapRegionSize=4M",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:+AlwaysPreTouch",
+                "-XX:MaxInlineLevel=15",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%"
+        )));
+    }
+
+    /*
+    public static void defaultStartup() {
+        new JsonFile(new File("storage/groups/startup/default.json")).setListDefault("commands", Arrays.asList(
+                "%java%",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%",
+                "-h0.0.0.0"
+        ));
+
+        new JsonFile(new File("storage/groups/startup/bukkit.json")).setListDefault("commands", Arrays.asList(
+                "%java%",
+                "-Dcom.mojang.eula.agree=true",
+                "-XX:+UseG1GC",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:MaxGCPauseMillis=200",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+DisableExplicitGC",
+                "-XX:+AlwaysPreTouch",
+                "-XX:G1NewSizePercent=30",
+                "-XX:G1MaxNewSizePercent=40",
+                "-XX:G1HeapRegionSize=8M",
+                "-XX:G1ReservePercent=20",
+                "-XX:G1HeapWastePercent=5",
+                "-XX:G1MixedGCCountTarget=4",
+                "-XX:InitiatingHeapOccupancyPercent=15",
+                "-XX:G1MixedGCLiveThresholdPercent=90",
+                "-XX:G1RSetUpdatingPauseTimePercent=5",
+                "-XX:SurvivorRatio=32",
+                "-XX:+PerfDisableSharedMem",
+                "-XX:MaxTenuringThreshold=1",
+                "-Dusing.aikars.flags=https://mcflags.emc.gs",
+                "-Daikars.new.flags=true",
+                "-XX:-UseAdaptiveSizePolicy",
+                "-XX:CompileThreshold=100",
+                "-Dio.netty.recycler.maxCapacity=0",
+                "-Dio.netty.recycler.maxCapacity.default=0",
+                "-Djline.terminal=jline.UnsupportedTerminal",
+                "-Dfile.encoding=UTF-8",
+                "-Dclient.encoding.override=UTF-8",
+                "-DIReallyKnowWhatIAmDoingISwear=true",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%",
+                "-h0.0.0.0"
+        ));
+
+        new JsonFile(new File("storage/groups/startup/velocity.json")).setList("commands", Arrays.asList(
+                "%java%",
+                "-XX:+UseG1GC",
+                "-XX:G1HeapRegionSize=4M",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:+AlwaysPreTouch",
+                "-XX:MaxInlineLevel=15",
+                "-Xmx%memory%M",
+                "-jar", "%jarFile%",
+                "-p%port%"
+        ));
+    }
+    */
 
 }

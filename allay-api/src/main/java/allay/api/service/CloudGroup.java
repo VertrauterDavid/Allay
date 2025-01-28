@@ -29,6 +29,10 @@ public class CloudGroup implements Sendable {
     private HashMap<String, Long> nodes;
     private List<String> templates;
 
+    private String startupFile;
+    private String startupCommand;
+    private HashMap<String, String> environment;
+
     @Override
     public void read(PacketBuffer buffer) {
         name = buffer.readString();
@@ -41,6 +45,9 @@ public class CloudGroup implements Sendable {
         javaVersion = buffer.readEnum(JavaVersion.class);
         nodes = buffer.readMap(String.class, Long.class);
         templates = buffer.readList(String.class);
+        startupFile = buffer.readString();
+        startupCommand = buffer.readString();
+        environment = buffer.readMap(String.class, String.class);
     }
 
     @Override
@@ -55,6 +62,9 @@ public class CloudGroup implements Sendable {
         buffer.writeEnum(javaVersion);
         buffer.writeMap(nodes);
         buffer.writeList(templates);
+        buffer.writeString(startupFile);
+        buffer.writeString(startupCommand);
+        buffer.writeMap(environment);
     }
 
     @Override
@@ -70,6 +80,8 @@ public class CloudGroup implements Sendable {
                 ", javaVersion='" + javaVersion.displayName() + '\'' +
                 ", nodes=" + nodes +
                 ", templates=" + templates +
+                ", startupFile='" + startupFile + '\'' +
+                ", environment=" + environment.size() +
                 '}';
     }
 
