@@ -63,7 +63,7 @@ public enum ServiceVersion {
     PAPER_1_20_4("Paper 1.20.4", "https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/499/downloads/paper-1.20.4-499.jar"),
     PAPER_1_20_6("Paper 1.20.6", "https://api.papermc.io/v2/projects/paper/versions/1.20.6/builds/151/downloads/paper-1.20.6-151.jar"),
     PAPER_1_21("Paper 1.21", "https://api.papermc.io/v2/projects/paper/versions/1.21/builds/130/downloads/paper-1.21-130.jar"),
-    PAPER_1_21_4("Paper 1.21.4", "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/72/downloads/paper-1.21.4-72.jar"),
+    PAPER_1_21_4("Paper 1.21.4", "https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/130/downloads/paper-1.21.4-130.jar"),
 
     PURPUR_1_19_2("Purpur 1.19.2", "https://api.purpurmc.org/v2/purpur/1.19.2/latest/download"),
     PURPUR_1_19_4("Purpur 1.19.4", "https://api.purpurmc.org/v2/purpur/1.19.4/latest/download"),
