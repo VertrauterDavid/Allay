@@ -16,13 +16,20 @@
 
 package allay.plugin.proxy.velo;
 
+import allay.api.service.CloudService;
 import allay.plugin.proxy.ProxyInstance;
+import allay.plugin.proxy.velo.listener.DisconnectListener;
+import allay.plugin.proxy.velo.listener.PlayerChooseInitialServerListener;
+import allay.plugin.proxy.velo.listener.ProxyPingListener;
+import allay.plugin.proxy.velo.listener.ServerConnectedListener;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.ServerInfo;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,6 +37,33 @@ public class AllayVeloImpl extends ProxyInstance {
 
     private final AllayVelo instance;
     private final ProxyServer server;
+
+    @Override
+    public void enable() {
+        super.enable();
+
+        server.getAllServers().forEach(registeredServer -> server.unregisterServer(registeredServer.getServerInfo()));
+        server.getEventManager().register(instance, new DisconnectListener());
+        server.getEventManager().register(instance, new PlayerChooseInitialServerListener(this, server));
+        server.getEventManager().register(instance, new ProxyPingListener());
+        server.getEventManager().register(instance, new ServerConnectedListener());
+    }
+
+    @Override
+    public void registerServer(CloudService service) {
+        ServerInfo serverInfo = new ServerInfo(service.displayName(), InetSocketAddress.createUnresolved(service.ip(), service.port()));
+        server.registerServer(serverInfo);
+
+        if (service.displayName().toLowerCase().contains("lobby")) {
+            defaultServers.add(service.displayName());
+        }
+    }
+
+    @Override
+    public void unregisterServer(CloudService service) {
+        server.getServer(service.displayName()).ifPresent(registeredServer -> server.unregisterServer(registeredServer.getServerInfo()));
+        defaultServers.remove(service.displayName());
+    }
 
     @Override
     public void execute(String command) {

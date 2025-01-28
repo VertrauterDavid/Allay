@@ -25,7 +25,7 @@ import java.util.UUID;
 
 public abstract class ServiceInstance {
 
-    private NetworkManager networkManager;
+    protected NetworkManager networkManager;
 
     public void enable() {
         AllayApi.instance(new AllayApi());

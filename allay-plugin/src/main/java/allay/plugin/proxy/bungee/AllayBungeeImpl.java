@@ -16,6 +16,7 @@
 
 package allay.plugin.proxy.bungee;
 
+import allay.api.service.CloudService;
 import allay.plugin.proxy.ProxyInstance;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -28,6 +29,14 @@ import java.util.UUID;
 public class AllayBungeeImpl extends ProxyInstance {
 
     private final AllayBungee instance;
+
+    @Override
+    public void registerServer(CloudService service) {
+    }
+
+    @Override
+    public void unregisterServer(CloudService service) {
+    }
 
     @Override
     public void execute(String command) {

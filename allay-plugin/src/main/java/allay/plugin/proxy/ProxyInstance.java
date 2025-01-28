@@ -16,11 +16,45 @@
 
 package allay.plugin.proxy;
 
+import allay.api.network.packet.packets.service.ServicePacket;
+import allay.api.service.CloudService;
 import allay.plugin.ServiceInstance;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public abstract class ProxyInstance extends ServiceInstance {
+
+    protected final List<String> defaultServers = new ArrayList<>();
+
+    @Override
+    public void enable() {
+        super.enable();
+
+        networkManager.addListener(ServicePacket.class, packet -> {
+            CloudService service = packet.service();
+            ServicePacket.Action action = packet.action();
+
+            switch (action) {
+                case REGISTER -> {
+                    registerServer(service);
+                }
+
+                case UNREGISTER -> {
+                    unregisterServer(service);
+                }
+            }
+        });
+    }
+
+    public String randomLobby() {
+        return defaultServers.get(new Random().nextInt(defaultServers.size()));
+    }
+
+    public abstract void registerServer(CloudService service);
+    public abstract void unregisterServer(CloudService service);
 
     public abstract void message(UUID uuid, String message);
     public abstract void title(UUID uuid, String title, String subTitle, int fadeIn, int stay, int fadeOut);
