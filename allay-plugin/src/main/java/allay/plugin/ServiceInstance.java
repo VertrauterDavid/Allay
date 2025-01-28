@@ -31,7 +31,7 @@ public abstract class ServiceInstance {
         AllayApi.instance(new AllayApi());
 
         networkConfig = new NetworkConfig(
-                UUID.fromString(System.getenv("ALLAY_NETWORK_SYSTEM_ID")),
+                UUID.fromString(System.getenv("ALLAY_SERVICE_ID")),
                 System.getenv("ALLAY_NETWORK_AUTH_TOKEN"),
                 System.getenv("ALLAY_NETWORK_HOST"),
                 Integer.parseInt(System.getenv("ALLAY_NETWORK_PORT"))

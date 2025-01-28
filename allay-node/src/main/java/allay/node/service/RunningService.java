@@ -90,7 +90,7 @@ public class RunningService {
             // processBuilder.inheritIO();
 
             processBuilder.environment().put("ALLAY_SERVICE_NAME", service.displayName());
-            processBuilder.environment().put("ALLAY_NETWORK_SYSTEM_ID", allayNode.networkManager().id());
+            processBuilder.environment().put("ALLAY_SERVICE_ID", service.systemId().toString());
             processBuilder.environment().put("ALLAY_NETWORK_AUTH_TOKEN", allayNode.networkManager().authToken());
             processBuilder.environment().put("ALLAY_NETWORK_HOST", allayNode.networkManager().host());
             processBuilder.environment().put("ALLAY_NETWORK_PORT", String.valueOf(allayNode.networkManager().port()));
