@@ -84,7 +84,9 @@ public class NetworkManager extends NetworkComponent {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
                 .option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.IP_TOS, 24);
+                .option(ChannelOption.IP_TOS, 24)
+                .option(ChannelOption.SO_RCVBUF, 1048576)
+                .option(ChannelOption.SO_SNDBUF, 1048576);
 
         bootstrap.connect(this.host, this.port).addListener(futureChannel -> {
             if (futureChannel.isSuccess()) {

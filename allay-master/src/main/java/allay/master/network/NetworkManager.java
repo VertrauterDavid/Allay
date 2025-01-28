@@ -79,7 +79,9 @@ public class NetworkManager extends NetworkComponent {
                 .childHandler(new NetworkChannelInitializer(allayMaster.logger(), new NetworkHandler(allayMaster, this)))
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.IP_TOS, 24);
+                .childOption(ChannelOption.IP_TOS, 24)
+                .childOption(ChannelOption.SO_RCVBUF, 1048576)
+                .childOption(ChannelOption.SO_SNDBUF, 1048576);
 
         bootstrap.bind(this.host, this.port).addListener(futureChannel -> {
             if (futureChannel.isSuccess()) {
