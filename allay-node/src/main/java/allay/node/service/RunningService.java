@@ -60,7 +60,7 @@ public class RunningService {
 
         if (directory.exists()) {
             FileUtil.delete(allayNode.logger(), directory);
-            allayNode.logger().info("Deleted existing service directory for service §c" + service.displayName() + "§r!");
+            allayNode.logger().warning("Deleted existing service directory for service §c" + service.displayName() + "§r!");
         }
 
         if (!(directory.mkdirs())) {
