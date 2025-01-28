@@ -18,7 +18,7 @@ package allay.master.web;
 
 import allay.api.util.JsonFile;
 import allay.master.AllayMaster;
-import allay.master.web.test.*;
+import allay.master.web.routes.*;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import spark.Spark;

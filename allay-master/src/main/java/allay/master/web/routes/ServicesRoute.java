@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package allay.master.web.test;
+package allay.master.web.routes;
 
 import allay.master.AllayMaster;
 import allay.master.web.method.GetRoute;
@@ -26,17 +26,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.UUID;
 
-public class ProxiesRoute extends GetRoute {
+public class ServicesRoute extends GetRoute {
 
-    public ProxiesRoute(AllayMaster allayMaster) {
-        super(allayMaster, "/proxies");
+    public ServicesRoute(AllayMaster allayMaster) {
+        super(allayMaster, "/services");
     }
 
     @Override
     public void onRequest(Request request, Response response) {
         ArrayList<Service> services = new ArrayList<>();
         allayMaster.serviceManager().services().forEach((cloudGroup, list) -> {
-            if (!(cloudGroup.version().proxy())) return;
             list.forEach(cloudService -> {
                 String node = cloudService.node();
                 String nodeHostname = allayMaster.networkManager().channel(node).hostname();

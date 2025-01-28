@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package allay.master.web.test;
+package allay.master.web.routes;
 
 import allay.api.service.CloudService;
 import allay.master.AllayMaster;

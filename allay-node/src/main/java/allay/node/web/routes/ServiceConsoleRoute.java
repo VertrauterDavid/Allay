@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package allay.node.web.test;
+package allay.node.web.routes;
 
 import allay.node.AllayNode;
 import allay.node.service.RunningService;

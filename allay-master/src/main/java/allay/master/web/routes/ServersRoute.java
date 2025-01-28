@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package allay.master.web.test;
+package allay.master.web.routes;
 
 import allay.master.AllayMaster;
 import allay.master.web.method.GetRoute;

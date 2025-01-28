@@ -14,23 +14,36 @@
  * limitations under the License.
  */
 
-package allay.master.web.test;
+package allay.node.web.routes;
 
-import allay.master.AllayMaster;
-import allay.master.web.method.GetRoute;
+import allay.node.AllayNode;
+import allay.node.service.RunningService;
+import allay.node.web.method.PostRoute;
 import spark.Request;
 import spark.Response;
 
-public class PingRoute extends GetRoute {
+public class ServiceConsoleCommandRoute extends PostRoute {
 
-    public PingRoute(AllayMaster allayMaster) {
-        super(allayMaster, "/ping");
+    public ServiceConsoleCommandRoute(AllayNode allayNode) {
+        super(allayNode, "/service/console/command");
     }
 
     @Override
     public void onRequest(Request request, Response response) {
+        String service = request.queryParams("service");
+        String command = request.queryParams("command");
+        RunningService runningService = allayNode.serviceManager().service(service);
+
+        if (runningService == null) {
+            response.status(404);
+            response.body("Service not found :(");
+            return;
+        }
+
+        runningService.execute(command);
+
         response.status(200);
-        response.body("Pong");
+        response.body("command executed");
     }
 
 }
