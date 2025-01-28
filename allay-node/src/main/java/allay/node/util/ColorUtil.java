@@ -77,7 +77,8 @@ public class ColorUtil {
         colorMap.put('c', "#FF5555"); // Red
         colorMap.put('d', "#FF55FF"); // Light Purple
         colorMap.put('e', "#FFFF55"); // Yellow
-        colorMap.put('f', "rgba(255, 255, 255, 0.75);");
+        colorMap.put('f', "#AAAAAA"); // Gray
+        // colorMap.put('f', "rgba(255, 255, 255, 0.75);");
         return colorMap;
     }
 
@@ -107,9 +108,9 @@ public class ColorUtil {
         for (LogType logType : LogType.values()) {
             if (logType.color() == null) continue;
 
-            String logTypeString = logType.name() + "]: ";
+            String logTypeString = logType.display() + "]: ";
             if (input.contains(logTypeString)) {
-                input = input.replace(logTypeString, logType.color() + logType.name() + "§7]: ");
+                input = input.replace(logTypeString, logType.color() + logType.display() + "§7]: ");
             }
         }
 

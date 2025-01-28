@@ -51,7 +51,7 @@ public class Logger {
     }
 
     public void warning(String message) {
-        log(LogType.WARNING, message);
+        log(LogType.WARN, message);
     }
 
     public void error(String message) {

@@ -27,7 +27,7 @@ public enum LogType {
 
     NONE("", null),
     INFO("INFO", "§a"),
-    WARNING("WARN", "§e"),
+    WARN("WARN", "§e"),
     ERROR("FAIL", "§c"),
     DEBUG("TEST", "§7"); // "TEST" because it's the same length as info and warn
 
