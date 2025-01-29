@@ -69,6 +69,7 @@ public class RunningService {
         }
 
         try {
+            // todo - download icon and plugin from webserver if not locally available
             FileUtil.copyFile(service.group().version().jarFile(), new File(directory, service.group().version().jarFile().getName()));
             FileUtil.copyFile(new File("storage/files/", "server-icon.png"), new File(directory, "server-icon.png"));
             FileUtil.copyFile(new File("storage/files/", "AllayPlugin.jar"), new File(directory.getPath() + "/plugins/", "AllayPlugin.jar"));
@@ -125,6 +126,7 @@ public class RunningService {
         );
 
         // idk why, but we had it in midgard...
+        // todo - maybe not needed?
         allayNode.sleep(500);
 
         ProcessBuilder processBuilder = new ProcessBuilder(commands);

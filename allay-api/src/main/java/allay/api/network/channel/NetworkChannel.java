@@ -41,6 +41,7 @@ public class NetworkChannel {
     @Setter
     private NetworkChannelState state = NetworkChannelState.AUTHENTICATION_PENDING;
 
+    // todo CompletableFuture
     public void send(Packet packet) {
         if (!(this.nettyChannel.isOpen() && this.nettyChannel.isActive())) {
             throw new IllegalStateException("Channel is not open or active");
