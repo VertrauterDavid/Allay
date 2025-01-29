@@ -23,6 +23,7 @@ import lombok.experimental.UtilityClass;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -33,32 +34,33 @@ public class FileUtil {
     @SneakyThrows
     public static void copyFile(File file, File newFile) {
         if (!(file.exists())) return;
-        if (!(newFile.mkdirs())) return;
 
-        Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-    }
-
-    @SneakyThrows
-    public static void copyFileIfNotExist(File file, File newFile) {
-        if (!(file.exists())) return;
-        if (newFile.exists()) return;
+        File parentDir = newFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
 
         Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static void copyFiles(File folder, String directory) {
-        if (!(folder.exists())) return;
-        if (folder.listFiles() == null) return;
+        if (!folder.exists() || folder.listFiles() == null) return;
 
         for (File file : Objects.requireNonNull(folder.listFiles())) {
+            File newFile = new File(directory, file.getName());
+
             if (file.isDirectory()) {
-                copyFiles(file, directory + "/" + file.getName());
+                copyFiles(file, newFile.getAbsolutePath());
             } else {
-                File newFile = new File(directory, file.getName());
-                if (!(newFile.mkdirs())) return;
-                copyFile(file, new File(directory, newFile.getName()));
+                copyFile(file, newFile);
             }
         }
+    }
+
+    public static void createDirectory(File file) {
+        try {
+            Files.createDirectories(Paths.get(file.getAbsolutePath()));
+        } catch (IOException ignored) { }
     }
 
     public static void delete(Logger logger, File file) {
