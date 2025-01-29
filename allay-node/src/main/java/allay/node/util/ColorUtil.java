@@ -42,10 +42,12 @@ public class ColorUtil {
             char code = matcher.group(1) != null ? matcher.group(1).charAt(0) : matcher.group(2).charAt(0);
             String replacement;
             if (code == 'r') {
-                replacement = "</span><span style=\"color: rgba(255, 255, 255, 0.75);\">";
+                // replacement = "</span><span style=\"color: rgba(255, 255, 255, 0.75);\">";
+                replacement = "</span><span style=\"color: #AAAAAA;\">";
                 resetStyle = true;
             } else if (colorMap.containsKey(code)) {
-                String color = colorMap.getOrDefault(code, "rgba(255, 255, 255, 0.75);");
+                // String color = colorMap.getOrDefault(code, "rgba(255, 255, 255, 0.75);");
+                String color = colorMap.getOrDefault(code, "#AAAAAA;");
                 replacement = (resetStyle ? "</span>" : "") + "<span style=\"color: " + color + ";\">";
                 resetStyle = false;
             } else {
@@ -108,9 +110,9 @@ public class ColorUtil {
         for (LogType logType : LogType.values()) {
             if (logType.color() == null) continue;
 
-            String logTypeString = logType.display() + "]: ";
+            String logTypeString = " " + logType.display() + "]";
             if (input.contains(logTypeString)) {
-                input = input.replace(logTypeString, logType.color() + logType.display() + "§7]: ");
+                input = input.replace(logTypeString, " " + logType.color() + logType.display() + "§7]");
             }
         }
 

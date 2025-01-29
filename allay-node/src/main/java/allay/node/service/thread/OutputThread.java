@@ -46,7 +46,7 @@ public class OutputThread extends Thread {
 
                 // todo test this shit
                 // used the 2nd one and had some color problems... - if the 1st is good, remove the 2nd
-                String formattedLine = "<span style=\"color: rgba(255, 255, 255, 0.75);\">" + line.replaceAll("<|>", "");
+                String formattedLine = "<span style=\"color: #AAAAAA;\">" + line.replaceAll("<|>", "");
                 // String formattedLine = "<span style=\"color: rgba(255, 255, 255, 0.75);\">" + line.replaceAll("[<>]", "");
                 Matcher matcher = pattern.matcher(formattedLine);
                 StringBuilder stringBuilder = new StringBuilder();
