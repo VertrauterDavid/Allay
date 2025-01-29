@@ -52,7 +52,7 @@ public class AllayVeloImpl extends ProxyInstance {
         ServerInfo serverInfo = new ServerInfo(service.displayName(), InetSocketAddress.createUnresolved(service.ip(), service.port()));
         server.registerServer(serverInfo);
 
-        if (service.displayName().toLowerCase().contains("lobby")) {
+        if (service.displayName().toLowerCase().contains("lobby") || service.displayName().toLowerCase().contains("hub")) {
             defaultServers.add(service.displayName());
         }
     }
