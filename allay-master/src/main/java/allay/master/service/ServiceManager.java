@@ -146,7 +146,7 @@ public class ServiceManager {
                      */
 
                     // todo remove?
-                    allayMaster.logger().info("Registered service §a" + service.displayName() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
+                    // allayMaster.logger().info("Registered service §a" + service.displayName() + "§r on §a" + service.hostname() + "§r (" + service.node() + ")");
                 }
 
                 case UNREGISTER -> {
@@ -162,7 +162,8 @@ public class ServiceManager {
                     });
                      */
 
-                    allayMaster.logger().info("Unregistered service §c" + service.displayName());
+                    // todo remove?
+                    // allayMaster.logger().info("Unregistered service §c" + service.displayName());
                 }
             }
         });
