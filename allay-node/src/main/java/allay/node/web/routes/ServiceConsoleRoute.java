@@ -18,14 +18,9 @@ package allay.node.web.routes;
 
 import allay.node.AllayNode;
 import allay.node.service.RunningService;
-import allay.node.util.ColorUtil;
 import allay.node.web.method.GetRoute;
 import spark.Request;
 import spark.Response;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 public class ServiceConsoleRoute extends GetRoute {
 
@@ -53,22 +48,7 @@ public class ServiceConsoleRoute extends GetRoute {
         }
 
         response.status(200);
-        response.body(ColorUtil.translateMinecraftColor(ColorUtil.translateLogTypes(translate(console))));
-    }
-
-    private String translate(String input) {
-        HashMap<String, String> translations = new HashMap<>();
-        translations.put("Done (", "§a");
-
-        for (Map.Entry<String, String> entry : translations.entrySet()) {
-            String logTypeString = entry.getKey();
-            String colorCode = entry.getValue();
-            if (input.contains(logTypeString)) {
-                input = input.replaceFirst(Pattern.quote(logTypeString) + "[^)]*\\)", colorCode + "$0§7");
-            }
-        }
-
-        return input;
+        response.body(console);
     }
 
 }

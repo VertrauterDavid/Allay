@@ -17,15 +17,12 @@
 package allay.node.service.thread;
 
 import allay.node.service.RunningService;
-import allay.node.util.ColorUtil;
 import lombok.RequiredArgsConstructor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class OutputThread extends Thread {
@@ -38,32 +35,18 @@ public class OutputThread extends Thread {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(runningService.process().getInputStream()))) {
             String line;
-            Pattern pattern = Pattern.compile("\u001B\\[38;5;([0-9]+)m");
             while ((line = reader.readLine()) != null) {
+                /*
+                // todo needed for proxy log?
                 if (line.contains("connected player")) {
                     continue;
                 }
+                 */
 
-                // todo test this shit
-                // used the 2nd one and had some color problems... - if the 1st is good, remove the 2nd
-                String formattedLine = "<span style=\"color: #AAAAAA;\">" + line.replaceAll("<|>", "");
-                // String formattedLine = "<span style=\"color: rgba(255, 255, 255, 0.75);\">" + line.replaceAll("[<>]", "");
-                Matcher matcher = pattern.matcher(formattedLine);
-                StringBuilder stringBuilder = new StringBuilder();
-                while (matcher.find()) {
-                    int colorCode = Integer.parseInt(matcher.group(1));
-                    String hexColor = "<span style=\"color: #" + ColorUtil.translateIntToHex(colorCode) + ";\">";
-                    matcher.appendReplacement(stringBuilder, hexColor);
-                }
-                matcher.appendTail(stringBuilder);
-                formattedLine = stringBuilder.toString();
+                // replace < and > with &lt; and &gt; to prevent html injection
+                line = line.replace("<", "&lt;").replace(">", "&gt;");
 
-                formattedLine = formattedLine.replaceAll("\u001B\\[0m", "</span>");
-                if (!formattedLine.endsWith("</span>")) {
-                    formattedLine += "</span>";
-                }
-
-                runningService.output().accumulateAndGet(formattedLine + "\n", (prev, curr) -> prev + curr);
+                runningService.output().accumulateAndGet(line + "\n", (prev, curr) -> prev + curr);
             }
         } catch (IOException ignored) { }
     }
