@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @Getter
 public class ServiceQueue {
 
+    // todo - check on process if group still exists
+
     private final AllayMaster allayMaster;
     private final ServiceManager serviceManager;
 

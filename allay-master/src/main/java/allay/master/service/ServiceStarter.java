@@ -27,6 +27,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServiceStarter {
 
+    // todo - check on process if group still exists
+    // todo - thread to remove services from queue if the group no longer exists
+
     private final AllayMaster allayMaster;
     private final ServiceManager serviceManager;
 
