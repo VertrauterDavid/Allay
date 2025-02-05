@@ -119,4 +119,14 @@ public enum ServiceVersion {
         return jarFile.exists();
     }
 
+    public static ServiceVersion fromString(String string) {
+        for (ServiceVersion serviceVersion : values()) {
+            if (serviceVersion.name().equalsIgnoreCase(string) || serviceVersion.displayName().equalsIgnoreCase(string)) {
+                return serviceVersion;
+            }
+        }
+
+        return null;
+    }
+
 }
