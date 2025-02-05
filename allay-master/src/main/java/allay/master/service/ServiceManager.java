@@ -217,6 +217,10 @@ public class ServiceManager {
         return CompletableFuture.runAsync(() -> allayMaster.networkManager().channel("service-" + service.node()).send(new ServiceCommandPacket(command)));
     }
 
+    public CloudGroup group(String input) {
+        return services.keySet().stream().filter(group -> group.name().equalsIgnoreCase(input) || group.displayName().equalsIgnoreCase(input)).findFirst().orElse(null);
+    }
+
     public CloudService service(UUID systemId) {
         return services.values().stream().flatMap(Collection::stream).filter(service -> service.systemId().equals(systemId)).findFirst().orElse(null);
     }
