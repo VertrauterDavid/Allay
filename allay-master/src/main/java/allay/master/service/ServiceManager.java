@@ -16,11 +16,11 @@
 
 package allay.master.service;
 
-import allay.api.network.channel.NetworkChannel;
 import allay.api.network.packet.packets.service.ServiceCommandPacket;
 import allay.api.network.packet.packets.service.ServiceDisablePacket;
 import allay.api.network.packet.packets.service.ServicePacket;
 import allay.api.service.*;
+import allay.api.util.FileUtil;
 import allay.api.util.JsonFile;
 import allay.api.util.StringUtil;
 import allay.master.AllayMaster;
@@ -199,6 +199,10 @@ public class ServiceManager {
         file.setList("templates", group.templates());
         file.setString("startupFile", group.startupFile());
         file.setMap("environment", group.environment());
+    }
+
+    public void delete(CloudGroup group) {
+        FileUtil.delete(allayMaster.logger(), new File("storage/groups/" + group.name() + ".json"));
     }
 
     /*
