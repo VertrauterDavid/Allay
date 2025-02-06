@@ -91,6 +91,7 @@ public class ServiceManager {
             startupCommand = new JsonFile(startupFile).getString("command");
         } else {
             startupCommand = new JsonFile(new File("storage/groups/startup/default.json")).getString("command");
+            allayMaster.logger().warning("Startup file '" + startupFile.getName() + "' for group '" + name + "' was not found!");
         }
 
         CloudGroup group = new CloudGroup(
