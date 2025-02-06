@@ -59,7 +59,7 @@ public class ServiceStarter {
         });
     }
 
-    private void process(CloudGroup group, String node, long amount) {
+    public void process(CloudGroup group, String node, long amount) {
         for (long l = 0; l < amount; l++) {
             // displayName and order id will be set by the queue
             // ip and port will be set by the node but must be defined for the packet
