@@ -109,7 +109,6 @@ public class ServiceManager {
                 startupCommand,
                 file.getMap("environment", String.class, String.class)
         );
-        group.environment().forEach((key, value) -> System.out.println("Key: " + key + " Value: " + value));
 
         services.put(group, new ArrayList<>());
     }
