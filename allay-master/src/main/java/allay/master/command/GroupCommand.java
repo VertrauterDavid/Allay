@@ -18,14 +18,8 @@ package allay.master.command;
 
 import allay.api.console.command.Command;
 import allay.api.service.CloudGroup;
-import allay.api.service.JavaVersion;
 import allay.api.service.ServiceVersion;
-import allay.api.util.JsonFile;
 import allay.master.AllayMaster;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @SuppressWarnings("unused")
 public class GroupCommand extends Command<AllayMaster> {
@@ -80,9 +74,7 @@ public class GroupCommand extends Command<AllayMaster> {
                         return;
                     }
 
-                    CloudGroup group = new CloudGroup(name, "default", memory, minOnline, -1, staticGroup, software, JavaVersion.DEFAULT, new HashMap<>(), new ArrayList<>(), "default.json", new JsonFile(new File("storage/groups/startup/default.json")).getString("command"), new HashMap<>());
-                    allayInstance.serviceManager().services().put(group, new ArrayList<>());
-                    allayInstance.serviceManager().save(group);
+                    allayInstance.serviceManager().create(name, memory, minOnline, staticGroup, software);
                     allayInstance.logger().info("§aThe group has been created!");
                 } catch (NumberFormatException ignored) { }
             }
@@ -98,9 +90,6 @@ public class GroupCommand extends Command<AllayMaster> {
                     return;
                 }
 
-                // todo - stop running services and unregister from the network + from the nodes
-
-                allayInstance.serviceManager().services().remove(group);
                 allayInstance.serviceManager().delete(group);
                 allayInstance.logger().info("§aThe group has been deleted!");
             }

@@ -71,12 +71,12 @@ public class ServiceManager {
 
         Arrays.stream(Objects.requireNonNull(groups.listFiles())).forEach(file -> {
             if (file.getName().endsWith(".json")) {
-                load(file.getName().replace(".json", ""));
+                loadGroup(file.getName().replace(".json", ""));
             }
         });
     }
 
-    private void load(String name) {
+    private void loadGroup(String name) {
         if (name == null || name.contains(" ")) throw new IllegalArgumentException("Invalid group name");
         if (!(new File("storage/groups/" + name + ".json").exists())) throw new IllegalArgumentException("Group not found");
 
@@ -201,7 +201,29 @@ public class ServiceManager {
         file.setMap("environment", group.environment());
     }
 
+    public void create(String name, long memory, long minInstance, boolean staticGroup, ServiceVersion version) {
+        JsonFile file = new JsonFile(new File("storage/groups/" + name + ".json"));
+
+        file.setString("name", name);
+        file.setString("displayName", "default");
+        file.setLong("memory", memory);
+        file.setLong("minInstances", minInstance);
+        file.setLong("maxInstances", -1);
+        file.setBoolean("staticGroup", staticGroup);
+        file.setString("version", version.name());
+        file.setString("javaVersion", JavaVersion.DEFAULT.name());
+        file.setMap("nodes", new HashMap<>());
+        file.setList("templates", new ArrayList<>());
+        file.setString("startupFile", "default.json");
+        file.setMap("environment", new HashMap<>());
+
+        loadGroup(file.file().getName());
+    }
+
     public void delete(CloudGroup group) {
+        // todo - stop running services, unregister from the network and from all nodes
+
+        services.remove(group);
         FileUtil.delete(allayMaster.logger(), new File("storage/groups/" + group.name() + ".json"));
     }
 
