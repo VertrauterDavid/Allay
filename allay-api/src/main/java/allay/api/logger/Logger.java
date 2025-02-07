@@ -39,7 +39,7 @@ public class Logger {
 
     public Logger(AllayInstance allayInstance) {
         this.allayInstance = allayInstance;
-        this.dateFormat = new SimpleDateFormat("HH:mm:ss");
+        this.dateFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
         this.dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
 
         new ArrayList<org.apache.log4j.Logger>(Collections.list(LogManager.getCurrentLoggers())).forEach(logger -> logger.setLevel(Level.OFF));
